@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Рефлексія після уроку</title>
+<style>
+  :root {
+    --bg: #f6f3ee;
+    --card: #ffffff;
+    --text: #2b2b2b;
+    --muted: #6b6b6b;
+    --accent: #3b6fd8;
+    --border: #e3ddd3;
+    --green: #2e9e5b;
+    --yellow: #e0a91b;
+    --red: #d94848;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+  }
+  main { max-width: 640px; margin: 0 auto; padding: 24px 16px 48px; }
+  h1 { font-size: 1.6rem; margin: 0 0 4px; }
+  .topic { color: var(--muted); margin: 0 0 24px; }
+  .step {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+  .step h2 { font-size: 1.1rem; margin: 0 0 12px; }
+  .choices { display: flex; flex-wrap: wrap; gap: 10px; }
+  .choice {
+    flex: 1 1 90px;
+    border: 2px solid var(--border);
+    background: #fff;
+    border-radius: 12px;
+    padding: 12px 8px;
+    font-size: 0.95rem;
+    cursor: pointer;
+    text-align: center;
+    transition: border-color .15s, transform .1s;
+  }
+  .choice .icon { display: block; font-size: 2rem; margin-bottom: 4px; }
+  .choice:hover { transform: translateY(-2px); }
+  .choice.selected { border-color: var(--accent); background: #eef3fd; }
+  .light { width: 28px; height: 28px; border-radius: 50%; display: block; margin: 0 auto 6px; }
+  label { display: block; font-weight: 600; margin: 12px 0 6px; }
+  textarea {
+    width: 100%;
+    min-height: 64px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px;
+    font: inherit;
+    resize: vertical;
+  }
+  button.main {
+    width: 100%;
+    border: 0;
+    border-radius: 12px;
+    padding: 14px;
+    font-size: 1.05rem;
+    font-weight: 600;
+    background: var(--accent);
+    color: #fff;
+    cursor: pointer;
+  }
+  .hint { color: var(--red); text-align: center; min-height: 1.5em; margin: 8px 0 0; }
+  #result { display: none; }
+  #result .summary { font-size: 1.05rem; }
+  #result .summary p { margin: 6px 0; }
+  .big { font-size: 3rem; text-align: center; margin: 0; }
+  .again { background: #fff; color: var(--accent); border: 2px solid var(--accent); margin-top: 12px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Як пройшов урок?</h1>
+  <p class="topic" id="topic">Подумай про сьогоднішній урок і дай відповіді.</p>
+
+  <div id="form">
+    <section class="step">
+      <h2>1. Мій настрій після уроку</h2>
+      <div class="choices" data-group="mood">
+        <button class="choice" data-value="😄"><span class="icon">😄</span>Чудово</button>
+        <button class="choice" data-value="🙂"><span class="icon">🙂</span>Добре</button>
+        <button class="choice" data-value="😐"><span class="icon">😐</span>Так собі</button>
+        <button class="choice" data-value="😟"><span class="icon">😟</span>Важко</button>
+      </div>
+    </section>
+
+    <section class="step">
+      <h2>2. Наскільки я зрозумів(-ла) тему</h2>
+      <div class="choices" data-group="light">
+        <button class="choice" data-value="green"><span class="light" style="background:var(--green)"></span>Усе зрозуміло, можу пояснити іншим</button>
+        <button class="choice" data-value="yellow"><span class="light" style="background:var(--yellow)"></span>Майже все, є питання</button>
+        <button class="choice" data-value="red"><span class="light" style="background:var(--red)"></span>Потрібна допомога</button>
+      </div>
+    </section>
+
+    <section class="step">
+      <h2>3. Допиши речення</h2>
+      <label for="s1">Сьогодні новим для мене було…</label>
+      <textarea id="s1"></textarea>
+      <label for="s2">Найскладнішим було…</label>
+      <textarea id="s2"></textarea>
+      <label for="s3">Я хочу дізнатися більше про…</label>
+      <textarea id="s3"></textarea>
+    </section>
+
+    <button class="main" id="done">Готово</button>
+    <p class="hint" id="hint"></p>
+  </div>
+
+  <section class="step" id="result">
+    <p class="big" id="resMood"></p>
+    <h2 style="text-align:center">Дякую за відповіді!</h2>
+    <div class="summary" id="summary"></div>
+    <p style="color:var(--muted)">Покажи цей екран учителеві або зроби знімок екрана.</p>
+    <button class="main again" id="again">Заповнити ще раз</button>
+  </section>
+</main>
+
+<script>
+  // Тему уроку можна передати в посиланні: ...?tema=Алгоритми
+  const params = new URLSearchParams(location.search);
+  const tema = params.get("tema");
+  if (tema) {
+    document.getElementById("topic").textContent = "Тема уроку: " + tema;
+  }
+
+  const answers = { mood: null, light: null };
+
+  document.querySelectorAll(".choices").forEach(group => {
+    group.addEventListener("click", e => {
+      const btn = e.target.closest(".choice");
+      if (!btn) return;
+      group.querySelectorAll(".choice").forEach(b => b.classList.remove("selected"));
+      btn.classList.add("selected");
+      answers[group.dataset.group] = btn.dataset.value;
+    });
+  });
+
+  const lightText = {
+    green: "🟢 Усе зрозуміло",
+    yellow: "🟡 Є питання",
+    red: "🔴 Потрібна допомога"
+  };
+
+  function addLine(container, title, text) {
+    if (!text.trim()) return;
+    const p = document.createElement("p");
+    const b = document.createElement("b");
+    b.textContent = title + " ";
+    p.appendChild(b);
+    p.appendChild(document.createTextNode(text.trim()));
+    container.appendChild(p);
+  }
+
+  document.getElementById("done").addEventListener("click", () => {
+    const hint = document.getElementById("hint");
+    if (!answers.mood || !answers.light) {
+      hint.textContent = "Обери настрій і колір світлофора.";
+      return;
+    }
+    hint.textContent = "";
+    document.getElementById("resMood").textContent = answers.mood;
+    const summary = document.getElementById("summary");
+    summary.innerHTML = "";
+    if (tema) addLine(summary, "Тема:", tema);
+    addLine(summary, "Розуміння теми:", lightText[answers.light]);
+    addLine(summary, "Новим було:", document.getElementById("s1").value);
+    addLine(summary, "Складним було:", document.getElementById("s2").value);
+    addLine(summary, "Хочу дізнатися:", document.getElementById("s3").value);
+    document.getElementById("form").style.display = "none";
+    document.getElementById("result").style.display = "block";
+    window.scrollTo(0, 0);
+  });
+
+  document.getElementById("again").addEventListener("click", () => {
+    location.reload();
+  });
+</script>
+</body>
+</html>
