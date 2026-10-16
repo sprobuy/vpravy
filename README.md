@@ -2,13 +2,13 @@
 
 Навчальні вправи для учнів, розміщені на GitHub Pages.
 
-Головна сторінка: https://dadonovaedu.github.io/vpravy/
+Головна сторінка: https://sprobuy.github.io/vpravy/
 
 ## Вправи
 
 | Вправа | Посилання |
 |---|---|
-| Рефлексія після уроку | https://dadonovaedu.github.io/vpravy/refleksiia/ |
+| Рефлексія після уроку | https://sprobuy.github.io/vpravy/refleksiia/ |
 
 Тему уроку у вправі рефлексії можна передати в посиланні: `…/refleksiia/?tema=Алгоритми`.
 
