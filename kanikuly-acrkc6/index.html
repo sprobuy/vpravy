@@ -8,7 +8,7 @@
 <meta name="theme-color" content="#6d3b47">
 <title>Осіннє перезавантаження</title>
 <meta property="og:title" content="Осіннє перезавантаження 🍂">
-<meta property="og:description" content="14 осінніх листків для вчителя перед канікулами: ігри, виклики, гороскоп і ваш стиль відпочинку.">
+<meta property="og:description" content="15 осінніх листків для вчителя перед канікулами: ігри, виклики, гороскоп і ваш стиль відпочинку.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8D%82%3C/text%3E%3C/svg%3E">
 <style>
   :root {
@@ -79,8 +79,10 @@
   /* ---------- сітка карток ---------- */
   .grid {
     display: grid; gap: 12px;
-    grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
+    grid-template-columns: repeat(2, 1fr);
   }
+  @media (min-width: 600px) { .grid { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 599px) { .leaf:last-child:nth-child(odd) { grid-column: span 2; } }
   .leaf {
     position: relative; min-height: 132px; padding: 14px 14px 12px;
     border: 0; border-radius: var(--radius-leaf); cursor: pointer; text-align: left;
@@ -275,7 +277,7 @@
 <div class="bar">
   <div class="bar-inner">
     <div class="progress" aria-live="polite">
-      <div class="progress-label">Відкрито <b id="cnt">0</b> з <b id="total">14</b></div>
+      <div class="progress-label">Відкрито <b id="cnt">0</b> з <b id="total">15</b></div>
       <div class="track"><div class="fill" id="fill"></div></div>
     </div>
     <button class="icon-btn" id="soundBtn" type="button" aria-label="Вимкнути звук" title="Звук">🔔</button>
@@ -288,7 +290,7 @@
     <div class="hero">
       <div class="hero-leaf" aria-hidden="true">🍁</div>
       <h1 class="serif">Осіннє перезавантаження</h1>
-      <p>Перед вами 14 осінніх листків. Під кожним — маленька порція тепла: вибір, гра, виклик чи несподіване передбачення. Відкривайте в будь-якому порядку, а наприкінці дізнаєтеся свій стиль відпочинку на ці канікули.</p>
+      <p>Перед вами 15 осінніх листків. Під кожним — маленька порція тепла: вибір, гра, виклик чи несподіване передбачення. Відкривайте в будь-якому порядку, а наприкінці дізнаєтеся свій стиль відпочинку на ці канікули.</p>
     </div>
     <div class="grid" id="grid"></div>
     <div class="to-final" id="toFinal">
@@ -466,6 +468,16 @@
           r: "Тепла компанія — подарунок, який хочеться повторювати." },
         { e: "🎨", t: "Нова книжка або набір фарб", s: { creative: 2 },
           r: "Схоже, у вас з’явиться нове хобі. Або повернеться давнє!" }
+      ] },
+
+    { id: "postcard", type: "postcard", emo: "💌", kind: "Листівка колезі", title: "Тепло для колеги",
+      lead: "Оберіть побажання й надішліть його тому, з ким ви разом дочекалися канікул.",
+      button: "Готово",
+      wishes: [
+        "Нехай на цих канікулах чай не холоне, а будильник забуде, як дзвонити ☕",
+        "Нехай цього тижня єдиною перевіркою буде перевірка, чи досить у чашці какао 🍫",
+        "Бажаю відпочити так, щоб у листопад зайти з усмішкою й повною батарейкою 🔋",
+        "Пишаюся тим, як ми пройшли ці тижні. А тепер — заслужений відпочинок! 🍁"
       ] },
 
     { id: "word", type: "note", emo: "🪶", kind: "Одне слово", title: "Девіз канікул",
@@ -758,6 +770,27 @@
       ctx.collect = function () { state.ans[c.id] = sel; };
     },
 
+    postcard: function (ctx) {
+      var c = ctx.card, sel = typeof state.ans[c.id] === "number" ? state.ans[c.id] : 0;
+      var box = el("div", "options"); ctx.body.appendChild(box);
+      var btns = [];
+      c.wishes.forEach(function (w, k) {
+        var b = el("button", "opt"); b.type = "button";
+        b.appendChild(el("span", "", w));
+        b.addEventListener("click", function () { sel = k; mark(); sfx("pick"); });
+        btns.push(b); box.appendChild(b);
+      });
+      function mark() { btns.forEach(function (b, k) { b.classList.toggle("sel", k === sel); b.setAttribute("aria-pressed", k === sel ? "true" : "false"); }); }
+      mark();
+      var copy = el("button", "btn soft wide", "Скопіювати листівку 📋"); copy.type = "button";
+      copy.addEventListener("click", function () {
+        copyText(c.wishes[sel] + "\n\nОсінні листки для гарного настрою: " + pageUrl(),
+          "Листівку скопійовано. Надішліть її колезі 💌", "Скопіюйте листівку:");
+      });
+      ctx.foot.appendChild(copy);
+      ctx.collect = function () { state.ans[c.id] = sel; };
+    },
+
     idea: function (ctx) {
       var c = ctx.card;
       var idx = typeof state.ans[c.id] === "number" ? state.ans[c.id] : Math.floor(Math.random() * c.ideas.length);
@@ -906,20 +939,21 @@
 
   /* ---------- поділитися ---------- */
   function pageUrl() { return location.origin + location.pathname; }
-  function shareLink() {
-    var url = pageUrl();
+  function copyText(text, okMsg, promptMsg) {
     function fallback() {
       var ta = document.createElement("textarea");
-      ta.value = url; ta.setAttribute("readonly", ""); ta.style.position = "fixed"; ta.style.opacity = "0";
-      document.body.appendChild(ta); ta.select(); ta.setSelectionRange(0, url.length);
+      ta.value = text; ta.setAttribute("readonly", ""); ta.style.position = "fixed"; ta.style.opacity = "0";
+      document.body.appendChild(ta); ta.select(); ta.setSelectionRange(0, text.length);
       var ok = false; try { ok = document.execCommand("copy"); } catch (e) {}
       ta.remove();
-      if (ok) toast("Посилання скопійовано. Надішліть його колегам 💌");
-      else window.prompt("Скопіюйте посилання й надішліть колегам:", url);
+      if (ok) toast(okMsg); else window.prompt(promptMsg, text);
     }
     if (navigator.clipboard && window.isSecureContext) {
-      navigator.clipboard.writeText(url).then(function () { toast("Посилання скопійовано. Надішліть його колегам 💌"); }, fallback);
+      navigator.clipboard.writeText(text).then(function () { toast(okMsg); }, fallback);
     } else fallback();
+  }
+  function shareLink() {
+    copyText(pageUrl(), "Посилання скопійовано. Надішліть його колегам 💌", "Скопіюйте посилання й надішліть колегам:");
   }
 
   /* ---------- скидання ---------- */
