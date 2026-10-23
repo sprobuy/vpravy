@@ -8,7 +8,7 @@
 <meta name="theme-color" content="#6d3b47">
 <title>Осіннє перезавантаження</title>
 <meta property="og:title" content="Осіннє перезавантаження 🍂">
-<meta property="og:description" content="15 осінніх листків для вчителя перед канікулами: ігри, виклики, гороскоп і ваш стиль відпочинку.">
+<meta property="og:description" content="15 осінніх карток для вчителя перед канікулами: ігри, виклики, гороскоп і ваш спосіб відпочинку.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8D%82%3C/text%3E%3C/svg%3E">
 <style>
   :root {
@@ -567,7 +567,7 @@
       var b = el("button", "leaf" + (state.done[c.id] ? " done" : ""));
       b.type = "button";
       b.style.setProperty("--c", colorOf(i));
-      b.setAttribute("aria-label", "Листок " + (i + 1) + ": " + c.title + (state.done[c.id] ? " (відкрито)" : ""));
+      b.setAttribute("aria-label", "Картка " + (i + 1) + ": " + c.title + (state.done[c.id] ? " (відкрито)" : ""));
       var top = el("div");
       top.appendChild(el("div", "num", "№ " + (i + 1)));
       top.appendChild(el("div", "emo", c.emo));
@@ -646,7 +646,7 @@
         setTimeout(showFinal, 350);
       } else if (first) {
         var left = CARDS.length - doneCount();
-        toast(left === 1 ? "Залишився останній листок 🍂" : "Ще листків: " + left + " 🍂");
+        toast(left === 1 ? "Залишилася остання картка 🍂" : "Ще карток: " + left + " 🍂");
       }
     });
     foot.appendChild(main);
@@ -784,7 +784,7 @@
       mark();
       var copy = el("button", "btn soft wide", "Скопіювати листівку 📋"); copy.type = "button";
       copy.addEventListener("click", function () {
-        copyText(c.wishes[sel] + "\n\nОсінні листки для гарного настрою: " + pageUrl(),
+        copyText(c.wishes[sel] + "\n\nОсінні картки для гарного настрою: " + pageUrl(),
           "Листівку скопійовано. Надішліть її колезі 💌", "Скопіюйте листівку:");
       });
       ctx.foot.appendChild(copy);
@@ -852,7 +852,7 @@
 
     var sc = el("div", "style-card"); sc.style.setProperty("--c", st.color);
     sc.appendChild(el("div", "big", st.emo));
-    sc.appendChild(el("div", "over", "Ваш стиль відпочинку на ці канікули"));
+    sc.appendChild(el("div", "over", "Ваш спосіб відпочинку на ці канікули"));
     sc.appendChild(el("h2", "serif", st.name));
     sc.appendChild(el("p", "", st.text));
     sc.appendChild(el("div", "talisman", "Талісман канікул: " + st.talisman));
@@ -908,7 +908,7 @@
     var acts = el("div", "final-actions");
     var share = el("button", "btn wide", "Поділитися з колегами 🔗"); share.type = "button";
     share.addEventListener("click", shareLink);
-    var back = el("button", "btn ghost wide", "Повернутися до листків"); back.type = "button";
+    var back = el("button", "btn ghost wide", "Повернутися до карток"); back.type = "button";
     back.addEventListener("click", function () { f.classList.remove("show"); $("home").style.display = ""; window.scrollTo(0, 0); });
     var again = el("button", "btn soft wide", "Почати спочатку ↺"); again.type = "button";
     again.addEventListener("click", resetAll);
@@ -962,7 +962,7 @@
     var snd = state.sound; state = blank(); state.sound = snd; save();
     $("final").classList.remove("show"); $("home").style.display = "";
     renderGrid(); window.scrollTo(0, 0);
-    toast("Усі листки знову чекають на вас 🍂");
+    toast("Усі картки знову чекають на вас 🍂");
   }
 
   $("soundBtn").addEventListener("click", function () {
