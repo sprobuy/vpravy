@@ -938,7 +938,7 @@
   }
 
   /* ---------- поділитися ---------- */
-  function pageUrl() { return location.origin + location.pathname; }
+  function pageUrl() { return location.origin + location.pathname + "?v=2"; }
   function copyText(text, okMsg, promptMsg) {
     function fallback() {
       var ta = document.createElement("textarea");
