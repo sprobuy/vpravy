@@ -1,0 +1,947 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="color-scheme" content="light">
+<meta name="theme-color" content="#6d3b47">
+<title>Осіннє перезавантаження</title>
+<meta property="og:title" content="Осіннє перезавантаження 🍂">
+<meta property="og:description" content="14 осінніх листків для вчителя перед канікулами: ігри, виклики, гороскоп і ваш стиль відпочинку.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8D%82%3C/text%3E%3C/svg%3E">
+<style>
+  :root {
+    --paper: #fbf4e6;
+    --paper-2: #f3e6cf;
+    --ink: #3b2a20;
+    --muted: #7c6555;
+    --rust: #c0532b;
+    --mustard: #d99a1e;
+    --moss: #5f6f3b;
+    --plum: #6d3b47;
+    --clay: #a8643a;
+    --line: #e6d4b6;
+    --radius-leaf: 26px 8px 26px 8px;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    color: var(--ink);
+    background-color: var(--paper);
+    background-image:
+      radial-gradient(circle at 8% 4%, rgba(217,154,30,.18), transparent 38%),
+      radial-gradient(circle at 96% 18%, rgba(192,83,43,.13), transparent 35%),
+      radial-gradient(circle at 20% 96%, rgba(95,111,59,.14), transparent 40%);
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+  .serif { font-family: Georgia, "Times New Roman", serif; }
+  button { font: inherit; color: inherit; }
+
+  /* ---------- верхня панель ---------- */
+  .bar {
+    position: sticky; top: 0; z-index: 5;
+    background: rgba(251,244,230,.92);
+    -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--line);
+    padding: 10px 16px calc(10px);
+    padding-top: max(10px, env(safe-area-inset-top));
+  }
+  .bar-inner { max-width: 860px; margin: 0 auto; display: flex; align-items: center; gap: 10px; }
+  .progress { flex: 1; min-width: 0; }
+  .progress-label { font-size: .88rem; color: var(--muted); margin-bottom: 5px; }
+  .progress-label b { color: var(--ink); }
+  .track { height: 9px; border-radius: 9px; background: var(--paper-2); overflow: hidden; }
+  .fill {
+    height: 100%; width: 0; border-radius: 9px;
+    background: linear-gradient(90deg, var(--mustard), var(--rust) 60%, var(--plum));
+    transition: width .5s ease;
+  }
+  .icon-btn {
+    flex: none; width: 42px; height: 42px; border-radius: 50%;
+    border: 1px solid var(--line); background: #fffaf0; cursor: pointer;
+    font-size: 1.15rem; display: grid; place-items: center;
+  }
+  .icon-btn:active { transform: scale(.94); }
+
+  main { max-width: 860px; margin: 0 auto; padding: 22px 16px 56px; }
+
+  /* ---------- шапка ---------- */
+  .hero { text-align: center; margin: 6px auto 22px; max-width: 560px; }
+  .hero-leaf { font-size: 2.4rem; display: inline-block; animation: sway 4s ease-in-out infinite; }
+  @keyframes sway { 0%,100% { transform: rotate(-8deg); } 50% { transform: rotate(8deg); } }
+  h1 { font-size: clamp(1.7rem, 6vw, 2.5rem); line-height: 1.15; margin: 6px 0 10px; color: var(--plum); }
+  .hero p { margin: 0; color: var(--muted); font-size: 1.02rem; }
+
+  /* ---------- сітка карток ---------- */
+  .grid {
+    display: grid; gap: 12px;
+    grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
+  }
+  .leaf {
+    position: relative; min-height: 132px; padding: 14px 14px 12px;
+    border: 0; border-radius: var(--radius-leaf); cursor: pointer; text-align: left;
+    color: #fff8ec; background: var(--c);
+    box-shadow: 0 6px 14px -8px rgba(59,42,32,.55), inset 0 0 0 1px rgba(255,255,255,.08);
+    display: flex; flex-direction: column; justify-content: space-between;
+    transition: transform .15s ease, box-shadow .15s ease;
+    overflow: hidden;
+  }
+  .leaf::after { /* прожилка листка */
+    content: ""; position: absolute; right: -30px; bottom: -30px; width: 110px; height: 110px;
+    border-radius: 50%; border: 2px solid rgba(255,255,255,.13);
+  }
+  .leaf:hover { transform: translateY(-3px) rotate(-.6deg); }
+  .leaf:active { transform: scale(.97); }
+  .leaf .num { font-size: .78rem; opacity: .85; letter-spacing: .04em; }
+  .leaf .emo { font-size: 1.9rem; line-height: 1; margin: 8px 0 6px; }
+  .leaf .ttl { font-weight: 650; font-size: .98rem; line-height: 1.25; }
+  .leaf .kind { font-size: .74rem; opacity: .85; margin-top: 4px; }
+  .leaf.done {
+    background: #fffaf0; color: var(--ink);
+    box-shadow: inset 0 0 0 2px var(--c);
+  }
+  .leaf.done .kind, .leaf.done .num { color: var(--muted); opacity: 1; }
+  .leaf.done::after { border-color: var(--c); opacity: .25; }
+  .check {
+    position: absolute; top: 10px; right: 10px; width: 26px; height: 26px; border-radius: 50%;
+    background: var(--c); color: #fff; font-size: .85rem; display: none; place-items: center;
+  }
+  .leaf.done .check { display: grid; }
+
+  .to-final { display: none; text-align: center; margin-top: 22px; }
+  .to-final.show { display: block; }
+
+  .btn {
+    border: 0; cursor: pointer; border-radius: 14px; padding: 13px 20px;
+    font-weight: 650; font-size: 1rem; background: var(--plum); color: #fff8ec;
+    box-shadow: 0 6px 14px -8px rgba(109,59,71,.8);
+  }
+  .btn:active { transform: scale(.97); }
+  .btn[disabled] { opacity: .45; cursor: default; }
+  .btn.ghost { background: transparent; color: var(--plum); box-shadow: inset 0 0 0 2px var(--plum); }
+  .btn.soft { background: var(--paper-2); color: var(--ink); box-shadow: none; }
+  .btn.wide { width: 100%; }
+
+  .privacy { text-align: center; color: var(--muted); font-size: .82rem; margin-top: 28px; }
+
+  /* ---------- модальне вікно ---------- */
+  .overlay {
+    position: fixed; inset: 0; z-index: 20; display: none;
+    background: rgba(45,28,22,.55); align-items: flex-end; justify-content: center;
+  }
+  .overlay.open { display: flex; animation: fade .2s ease; }
+  @keyframes fade { from { opacity: 0; } }
+  .sheet {
+    width: 100%; max-width: 540px; max-height: 92vh; overflow-y: auto;
+    background: var(--paper); border-radius: 26px 26px 0 0;
+    padding: 0 0 max(18px, env(safe-area-inset-bottom));
+    animation: up .28s cubic-bezier(.2,.8,.2,1);
+  }
+  @keyframes up { from { transform: translateY(40px); opacity: .4; } }
+  @media (min-width: 600px) {
+    .overlay { align-items: center; padding: 20px; }
+    .sheet { border-radius: 26px; }
+  }
+  .sheet-head {
+    background: var(--c); color: #fff8ec; padding: 18px 20px 20px; position: relative;
+    border-radius: 26px 26px 0 0;
+  }
+  .sheet-head .kind { font-size: .8rem; opacity: .9; text-transform: uppercase; letter-spacing: .06em; }
+  .sheet-head h2 { margin: 4px 44px 0 0; font-size: 1.45rem; line-height: 1.2; }
+  .sheet-head .emo { font-size: 2rem; }
+  .close {
+    position: absolute; top: 14px; right: 14px; width: 38px; height: 38px; border-radius: 50%;
+    border: 0; background: rgba(255,255,255,.2); color: #fff; font-size: 1.2rem; cursor: pointer;
+  }
+  .sheet-body { padding: 18px 20px 6px; }
+  .sheet-body > p.lead { margin: 0 0 14px; font-size: 1.05rem; }
+  .sheet-foot { padding: 8px 20px 4px; display: flex; flex-direction: column; gap: 10px; }
+
+  .options { display: grid; gap: 10px; }
+  .opt {
+    text-align: left; border: 2px solid var(--line); background: #fffaf0;
+    border-radius: 16px; padding: 13px 14px; cursor: pointer; font-size: 1rem;
+    display: flex; gap: 10px; align-items: flex-start;
+  }
+  .opt .oe { font-size: 1.35rem; line-height: 1.2; }
+  .opt.sel { border-color: var(--c); background: #fff3df; box-shadow: 0 0 0 3px rgba(192,83,43,.12); }
+  .opt .box {
+    flex: none; width: 22px; height: 22px; border-radius: 7px; border: 2px solid var(--line);
+    margin-top: 1px; display: grid; place-items: center; font-size: .8rem; color: #fff;
+  }
+  .opt.sel .box { background: var(--c); border-color: var(--c); }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip {
+    border: 2px solid var(--line); background: #fffaf0; border-radius: 999px;
+    padding: 8px 13px; cursor: pointer; font-size: .95rem;
+  }
+  .chip.sel { background: var(--c); border-color: var(--c); color: #fff8ec; }
+
+  .reaction {
+    margin-top: 14px; padding: 12px 14px; border-radius: 14px;
+    background: #fff0d6; border-left: 4px solid var(--mustard); display: none;
+  }
+  .reaction.show { display: block; animation: fade .3s ease; }
+
+  .field-label { display: block; font-size: .9rem; color: var(--muted); margin: 16px 0 6px; }
+  textarea, input[type=text] {
+    width: 100%; font: inherit; font-size: 16px; color: var(--ink);
+    border: 2px solid var(--line); border-radius: 14px; padding: 11px 13px; background: #fffdf8;
+    resize: vertical;
+  }
+  textarea { min-height: 84px; }
+  textarea:focus, input[type=text]:focus { outline: none; border-color: var(--c); }
+
+  /* батарейка */
+  .battery { display: flex; align-items: center; gap: 12px; margin: 6px 0 10px; }
+  .bat-body {
+    flex: 1; height: 54px; border: 3px solid var(--ink); border-radius: 12px; padding: 4px; position: relative;
+  }
+  .bat-body::after {
+    content: ""; position: absolute; right: -11px; top: 15px; width: 7px; height: 18px;
+    background: var(--ink); border-radius: 0 4px 4px 0;
+  }
+  .bat-fill { height: 100%; border-radius: 7px; transition: width .2s, background .2s; }
+  .bat-pct { font-size: 1.6rem; font-weight: 700; min-width: 74px; text-align: right; }
+  input[type=range] { width: 100%; accent-color: var(--c); height: 34px; }
+
+  /* гороскоп */
+  .signs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 7px; }
+  .sign {
+    border: 2px solid var(--line); background: #fffaf0; border-radius: 14px; padding: 8px 2px;
+    cursor: pointer; text-align: center; font-size: .76rem; line-height: 1.2;
+  }
+  .sign span { display: block; font-size: 1.35rem; margin-bottom: 2px; }
+  .sign.sel { border-color: var(--c); background: #fff3df; }
+
+  /* ідея */
+  .idea {
+    background: #fffaf0; border: 2px dashed var(--c); border-radius: 18px; padding: 18px 16px;
+    font-size: 1.08rem; text-align: center; min-height: 96px; display: grid; place-items: center;
+  }
+
+  /* ---------- фінал ---------- */
+  #final { display: none; }
+  #final.show { display: block; animation: fade .4s ease; }
+  .final-hero { text-align: center; margin: 4px auto 20px; max-width: 560px; }
+  .final-hero h1 { margin-top: 4px; }
+  .style-card {
+    border-radius: var(--radius-leaf); padding: 22px 20px; color: #fff8ec; background: var(--c);
+    box-shadow: 0 14px 28px -16px rgba(59,42,32,.7); margin-bottom: 16px; position: relative; overflow: hidden;
+  }
+  .style-card .over { font-size: .82rem; text-transform: uppercase; letter-spacing: .07em; opacity: .9; }
+  .style-card h2 { margin: 6px 0 8px; font-size: 1.6rem; line-height: 1.2; }
+  .style-card .big { position: absolute; right: 12px; top: 8px; font-size: 3rem; opacity: .9; }
+  .style-card p { margin: 0 0 10px; }
+  .style-card .talisman { background: rgba(255,255,255,.16); border-radius: 12px; padding: 9px 12px; font-size: .95rem; }
+  .bars { margin-top: 14px; display: grid; gap: 6px; font-size: .85rem; }
+  .bars div { display: grid; grid-template-columns: 120px 1fr; align-items: center; gap: 8px; }
+  .bars i { display: block; height: 8px; border-radius: 8px; background: rgba(255,255,255,.85); }
+
+  .panel {
+    background: #fffaf0; border: 1px solid var(--line); border-radius: 20px; padding: 16px 18px; margin-bottom: 14px;
+  }
+  .panel h3 { margin: 0 0 8px; font-size: 1.05rem; color: var(--plum); }
+  .panel p { margin: 0; }
+  .notes { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+  .notes li { border-left: 4px solid var(--mustard); padding: 2px 0 2px 12px; }
+  .notes small { display: block; color: var(--muted); }
+  .final-actions { display: grid; gap: 10px; margin-top: 18px; }
+
+  .toast {
+    position: fixed; left: 50%; bottom: max(22px, env(safe-area-inset-bottom)); z-index: 40;
+    transform: translate(-50%, 30px); opacity: 0; pointer-events: none;
+    background: var(--ink); color: #fff8ec; padding: 11px 18px; border-radius: 999px;
+    font-size: .95rem; transition: .25s; max-width: calc(100% - 32px); text-align: center;
+  }
+  .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+  .fall { position: fixed; inset: 0; pointer-events: none; z-index: 30; overflow: hidden; }
+  .fall span { position: absolute; top: -40px; font-size: 1.6rem; animation: drop linear forwards; }
+  @keyframes drop { to { transform: translateY(110vh) rotate(360deg); } }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="bar">
+  <div class="bar-inner">
+    <div class="progress" aria-live="polite">
+      <div class="progress-label">Відкрито <b id="cnt">0</b> з <b id="total">14</b></div>
+      <div class="track"><div class="fill" id="fill"></div></div>
+    </div>
+    <button class="icon-btn" id="soundBtn" type="button" aria-label="Вимкнути звук" title="Звук">🔔</button>
+    <button class="icon-btn" id="resetBtn" type="button" aria-label="Почати спочатку" title="Почати спочатку">↺</button>
+  </div>
+</div>
+
+<main>
+  <section id="home">
+    <div class="hero">
+      <div class="hero-leaf" aria-hidden="true">🍁</div>
+      <h1 class="serif">Осіннє перезавантаження</h1>
+      <p>Перед вами 14 осінніх листків. Під кожним — маленька порція тепла: вибір, гра, виклик чи несподіване передбачення. Відкривайте в будь-якому порядку, а наприкінці дізнаєтеся свій стиль відпочинку на ці канікули.</p>
+    </div>
+    <div class="grid" id="grid"></div>
+    <div class="to-final" id="toFinal">
+      <button class="btn" type="button" id="toFinalBtn">Мій підсумок 🎁</button>
+    </div>
+    <p class="privacy">Ваші відповіді зберігаються лише у вашому браузері й нікуди не надсилаються.</p>
+  </section>
+
+  <section id="final" aria-live="polite"></section>
+</main>
+
+<div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+  <div class="sheet" id="sheet"></div>
+</div>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(function () {
+  "use strict";
+
+  var STORE_KEY = "osinne-perezavantazhennia-v1";
+  var COLORS = ["#c0532b", "#d99a1e", "#5f6f3b", "#6d3b47", "#a8643a"];
+
+  /* ---------- стилі відпочинку ---------- */
+  var STYLES = {
+    cozy: {
+      name: "Затишний острівець", emo: "🫖", color: "#a8643a", short: "Затишок",
+      text: "Ваші канікули пахнуть корицею й теплим пледом. Ви знаєте ціну тиші, неквапливого ранку й чаю, який допиваєш гарячим. Цього тижня світ може трохи почекати: у вас важливі справи з ковдрою.",
+      talisman: "в’язані шкарпетки, які бачили вже не одні канікули"
+    },
+    adventure: {
+      name: "Осінній мандрівник", emo: "🍁", color: "#c0532b", short: "Пригоди",
+      text: "Вас кличуть нові вулиці, свіже повітря й шурхіт листя під ногами. Навіть звичайна прогулянка у вашому виконанні стає маленькою експедицією. Головне, щоб маршрут не пролягав повз школу.",
+      talisman: "термочашка, готова до будь-якої дороги"
+    },
+    social: {
+      name: "Серце компанії", emo: "🎉", color: "#6d3b47", short: "Зустрічі",
+      text: "Ви заряджаєтеся від людей, які вам дорогі: довгих розмов, спільного сміху й великого столу. Ваші канікули — це зустрічі, на які нарешті знайшовся час. Про роботу говорити можна, але зовсім трішки.",
+      talisman: "великий заварник, бо гостей буде багато"
+    },
+    creative: {
+      name: "Мрійник-творець", emo: "🎨", color: "#5f6f3b", short: "Творчість",
+      text: "Ваша батарейка заряджається, коли руки щось творять, а думки вільно літають. Книжка, пензлик, тісто чи нова ідея — канікули стають для вас майстернею без розкладу й без оцінювання.",
+      talisman: "блокнот, у якому немає жодної клітинки"
+    },
+    mix: {
+      name: "Осінній букет", emo: "🌈", color: "#d99a1e", short: "Мікс",
+      text: "Ви вмієте всього потроху: і затишку, і пригод, і зустрічей, і творчості. Ваші канікули — як осінній букет, де кожен листок має свій колір. І саме в цьому їхня краса.",
+      talisman: "кошик, у який поміститься все, що захочеться"
+    }
+  };
+  var STYLE_KEYS = ["cozy", "adventure", "social", "creative"];
+
+  /* ---------- картки ---------- */
+  var CARDS = [
+    { id: "battery", type: "slider", emo: "🔋", kind: "Батарейка", title: "Рівень заряду",
+      lead: "Тільки чесно: на скільки відсотків ви заряджені після цих тижнів? Посуньте повзунок.",
+      button: "Зафіксувати заряд" },
+
+    { id: "morning", type: "choice", emo: "☕", kind: "Це чи те", title: "Перший ранок канікул",
+      lead: "Будильник мовчить. Що обираєте?",
+      button: "Обираю",
+      options: [
+        { e: "🪟", t: "Тиха кава біля вікна, поки світ ще спить", s: { cozy: 1, creative: 1 },
+          r: "Тиша, тепла чашка й жодного дзвінка. Ранок, який належить лише вам." },
+        { e: "🥐", t: "Неквапливий сніданок у кав’ярні з кимось близьким", s: { social: 1, adventure: 1 },
+          r: "Смачно, неспішно й у гарній компанії. Канікули стартували!" }
+      ] },
+
+    { id: "recognize", type: "multi", emo: "😅", kind: "Впізнай себе", title: "Ознаки справжнього вчителя",
+      lead: "Позначте все, що з вами траплялося. Ми нікому не скажемо 🤫",
+      button: "Готово",
+      items: [
+        "Чули дзвінок на перерву, хоча були вдома",
+        "Помітили помилку в оголошенні на зупинці й ледве стрималися, щоб не виправити",
+        "Звернулися до рідних учительським тоном: «Хвилиночку уваги!»",
+        "Сіли перевіряти зошити, а за годину опинилися на кухні з третьою чашкою чаю",
+        "Намалювали на полях блокнота під час педради цілу осінню галерею",
+        "Здали звіт, а потім дізналися, що форма вже нова",
+        "Відповіли в робочому чаті о 23:00 і подумали: «Ну, хоч не опівночі»",
+        "Купили гарну канцелярію «для себе», а принесли до класу"
+      ] },
+
+    { id: "song", type: "challenge", emo: "🎵", kind: "Міні-виклик", title: "Пісня ваших 18",
+      lead: "Увімкніть пісню, під яку танцювали у 18 років. Гучність — на ваш розсуд, а от рухи — обов’язково! 💃",
+      note: "Що це за пісня?", button: "Приймаю виклик!" },
+
+    { id: "horoscope", type: "horoscope", emo: "🔮", kind: "Гороскоп", title: "Учительський гороскоп",
+      lead: "Оберіть свій знак — і зорі розкажуть, якими будуть ваші канікули.",
+      button: "Беру передбачення" },
+
+    { id: "day", type: "choice", emo: "🌿", kind: "Це чи те", title: "Ідеальний день канікул",
+      lead: "Якби можна було обрати лише один сценарій, це був би…",
+      button: "Обираю",
+      options: [
+        { e: "🧣", t: "Плед, какао й серіал до самого вечора", s: { cozy: 2 },
+          r: "Затишок рівня «профі». Плед схвалює ваш вибір." },
+        { e: "🚆", t: "Електричка в місто, де ви ще не бували", s: { adventure: 2 },
+          r: "Нові вулиці, нові кав’ярні, нові враження — звучить як пригода!" },
+        { e: "🍰", t: "Довга розмова з подругою чи другом за смаколиками", s: { social: 2 },
+          r: "Такі розмови заряджають краще за будь-яку зарядку." },
+        { e: "🧶", t: "Нарешті взятися за те, що давно кортить: малювати, пекти чи в’язати", s: { creative: 2 },
+          r: "Руки творять — душа відпочиває. Чудовий план!" }
+      ] },
+
+    { id: "permit", type: "permit", emo: "✨", kind: "Дозволяю собі", title: "Маленькі дозволи",
+      lead: "Оберіть усе, що дозволяєте собі на ці канікули. Можна дописати своє.",
+      note: "Дозволяю собі…", button: "Дозволяю!",
+      items: [
+        "спати без будильника", "нічого не планувати", "ходити в піжамі до обіду",
+        "не відповідати на повідомлення одразу", "читати не для роботи", "жодного зошита",
+        "сказати «ні» без пояснень", "снідати о дванадцятій", "нічого не встигнути й не перейматися"
+      ] },
+
+    { id: "idea", type: "idea", emo: "⏱️", kind: "Ідея на 5 хвилин", title: "Швидка радість",
+      lead: "Ось маленька ідея для гарного настрою. Не до душі — гортайте далі.",
+      button: "Беру!",
+      ideas: [
+        "Вийдіть надвір і знайдіть найяскравіший листок поблизу. Його можна засушити в улюбленій книжці.",
+        "Зробіть какао з корицею й випийте його біля вікна, нікуди не поспішаючи.",
+        "Перегляньте старі фото й знайдіть те, на якому ви найщасливіші.",
+        "Подзвоніть людині, за якою скучили, і запитайте, як у неї справи.",
+        "Станцюйте під одну пісню на кухні. Свідків не буде, а гарний настрій буде.",
+        "Запаліть свічку й п’ять хвилин подивіться на вогник. Без телефону.",
+        "Складіть список із п’яти дрібниць, які порадували вас цієї осені.",
+        "Напишіть кілька рядків собі — тому, хто зустріне літні канікули. Що побажаєте?"
+      ] },
+
+    { id: "lesson", type: "choice", emo: "🛎️", kind: "Це чи те", title: "Якби канікули були уроком",
+      lead: "Який це був би урок?",
+      button: "Обираю",
+      options: [
+        { e: "🌳", t: "Урок-екскурсія під відкритим небом", s: { adventure: 2 },
+          r: "Клас — увесь світ, а домашнє завдання — гуляти!" },
+        { e: "📖", t: "Урок читання вголос під пледом", s: { cozy: 2 },
+          r: "Тихо, тепло, і ніхто не питає, коли дзвінок." },
+        { e: "🎂", t: "Урок-свято з чаюванням і тортом", s: { social: 2 },
+          r: "Найкращі уроки — ті, де головне бути разом." },
+        { e: "🖌️", t: "Урок-майстерня, де можна все", s: { creative: 2 },
+          r: "Жодних критеріїв оцінювання — лише фантазія!" }
+      ] },
+
+    { id: "moment", type: "note", emo: "💛", kind: "Тепла думка", title: "Ось заради цього",
+      lead: "Згадайте момент цих тижнів, коли ви подумали: «Ось заради цього я тут». Можна записати, а можна просто всміхнутися.",
+      note: "Мій теплий момент…", button: "Зберегти тепло" },
+
+    { id: "sound", type: "choice", emo: "🍂", kind: "Це чи те", title: "Звук канікул",
+      lead: "Який звук для вас означає канікули?",
+      button: "Обираю",
+      options: [
+        { e: "🍁", t: "Шурхіт листя під ногами", s: { adventure: 2 },
+          r: "Осінь кличе на прогулянку. Чуєте?" },
+        { e: "🌧️", t: "Дощ за вікном, коли вам тепло й сухо", s: { cozy: 2 },
+          r: "Найзатишніший звук на світі — тут без заперечень." },
+        { e: "🥂", t: "Сміх за великим столом", s: { social: 2 },
+          r: "Сміх рідних людей — найкраща музика." },
+        { e: "📚", t: "Шелест сторінок нової книжки", s: { creative: 2 },
+          r: "Історія чекає, і ніхто не попросить скласти план прочитаного." }
+      ] },
+
+    { id: "offline", type: "challenge", emo: "📵", kind: "Міні-виклик", title: "Поза зоною досяжності",
+      lead: "Оберіть один день канікул, коли робочі чати сплять разом із будильником. Сповіщення вимкнено, совість спокійна.",
+      note: "Мій день тиші — це…", button: "Приймаю виклик!" },
+
+    { id: "gift", type: "choice", emo: "🎁", kind: "Це чи те", title: "Подарунок собі",
+      lead: "Ви заслужили маленький подарунок. Що це буде?",
+      button: "Обираю",
+      options: [
+        { e: "☕", t: "Нова чашка, з якої все смачніше", s: { cozy: 2 },
+          r: "Чай із нової чашки — справжнє свято." },
+        { e: "🎟️", t: "Квиток туди, де ви ще не були", s: { adventure: 2 },
+          r: "Нові враження — подарунок, який не займає місця на полиці." },
+        { e: "👯", t: "Зустріч із друзями в улюбленій кав’ярні", s: { social: 2 },
+          r: "Тепла компанія — подарунок, який хочеться повторювати." },
+        { e: "🎨", t: "Нова книжка або набір фарб", s: { creative: 2 },
+          r: "Схоже, у вас з’явиться нове хобі. Або повернеться давнє!" }
+      ] },
+
+    { id: "word", type: "note", emo: "🪶", kind: "Одне слово", title: "Девіз канікул",
+      lead: "Якби ваші канікули мали девіз з одного слова, яким би воно було? Наприклад: «тиша», «пригода», «какао»…",
+      note: "Моє слово…", single: true, button: "Готово" }
+  ];
+
+  var SIGNS = [
+    ["♈", "Овен", "Ваша енергія вражає навіть зорі. Тож цього тижня вони наполегливо радять спрямувати її… у диван. Маршрут дня: диван — холодильник — диван."],
+    ["♉", "Телець", "Венера обіцяє вам смачні канікули. Особливо сприятливий час для пирога, який ви давно хотіли спекти, але все не виходило через зошити."],
+    ["♊", "Близнята", "На вас чекають довгі цікаві розмови. І в жодній із них не прозвучить слово «звіт»."],
+    ["♋", "Рак", "Ваш дім стане фортецею: ковдра — мурами, чай — запасом провізії. Облога невідкладних справ цього тижня не вдасться."],
+    ["♌", "Лев", "Цього тижня ви сяятимете без жодного відкритого уроку. Оплески — просто за те, що ви є."],
+    ["♍", "Діва", "Зорі дозволяють вам помітити помилку в чужому тексті… і не виправити її. Це буде ваш найбільший подвиг канікул."],
+    ["♎", "Терези", "Ідеальна рівновага: половина дня — для приємних справ, друга половина — для ще приємніших."],
+    ["♏", "Скорпіон", "Ваша таємна суперсила — вимикати сповіщення. Цього тижня зорі дозволяють користуватися нею без обмежень."],
+    ["♐", "Стрілець", "Вас кличе дорога! Хоча б до найближчого парку, де листя шурхотить голосніше, ніж дзвінок на перерву."],
+    ["♑", "Козоріг", "Ви нарешті складете план. План нічого не планувати. І виконаєте його на 100 %."],
+    ["♒", "Водолій", "У вашій голові з’являться геніальні ідеї. Зорі радять записати їх і відкласти до кінця канікул — нехай теж відпочинуть."],
+    ["♓", "Риби", "Ви пливтимете за течією канікул і будете цілком щасливі. Будильник цього тижня — лише міф."]
+  ];
+
+  /* ---------- стан ---------- */
+  var state = load();
+  function blank() { return { done: {}, ans: {}, notes: {}, sound: true }; }
+  function load() {
+    try {
+      var raw = localStorage.getItem(STORE_KEY);
+      if (raw) {
+        var s = JSON.parse(raw);
+        if (s && typeof s === "object") {
+          var b = blank();
+          b.done = s.done || {}; b.ans = s.ans || {}; b.notes = s.notes || {};
+          b.sound = s.sound !== false;
+          return b;
+        }
+      }
+    } catch (e) {}
+    return blank();
+  }
+  function save() { try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) {} }
+
+  /* ---------- звук ---------- */
+  var actx = null;
+  function tone(freq, start, dur, vol) {
+    try {
+      if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)();
+      if (actx.state === "suspended") actx.resume();
+      var t = actx.currentTime + start;
+      var o = actx.createOscillator(), g = actx.createGain();
+      o.type = "sine"; o.frequency.value = freq;
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(vol, t + 0.03);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      o.connect(g); g.connect(actx.destination);
+      o.start(t); o.stop(t + dur + 0.05);
+    } catch (e) {}
+  }
+  function sfx(kind) {
+    if (!state.sound) return;
+    if (kind === "open") { tone(523, 0, .35, .04); }
+    else if (kind === "pick") { tone(659, 0, .2, .03); }
+    else if (kind === "done") { tone(659, 0, .5, .05); tone(880, .12, .6, .04); }
+    else if (kind === "final") { [523, 659, 784, 1046].forEach(function (f, i) { tone(f, i * .14, .8, .045); }); }
+  }
+
+  /* ---------- допоміжне ---------- */
+  function $(id) { return document.getElementById(id); }
+  function el(tag, cls, text) {
+    var n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text != null) n.textContent = text;
+    return n;
+  }
+  function colorOf(i) { return COLORS[i % COLORS.length]; }
+  function doneCount() { var c = 0; CARDS.forEach(function (k) { if (state.done[k.id]) c++; }); return c; }
+  var toastTimer;
+  function toast(msg) {
+    var t = $("toast"); t.textContent = msg; t.classList.add("show");
+    clearTimeout(toastTimer); toastTimer = setTimeout(function () { t.classList.remove("show"); }, 2600);
+  }
+
+  /* ---------- головний екран ---------- */
+  function renderGrid() {
+    var g = $("grid"); g.innerHTML = "";
+    CARDS.forEach(function (c, i) {
+      var b = el("button", "leaf" + (state.done[c.id] ? " done" : ""));
+      b.type = "button";
+      b.style.setProperty("--c", colorOf(i));
+      b.setAttribute("aria-label", "Листок " + (i + 1) + ": " + c.title + (state.done[c.id] ? " (відкрито)" : ""));
+      var top = el("div");
+      top.appendChild(el("div", "num", "№ " + (i + 1)));
+      top.appendChild(el("div", "emo", c.emo));
+      b.appendChild(top);
+      var bottom = el("div");
+      bottom.appendChild(el("div", "ttl", c.title));
+      bottom.appendChild(el("div", "kind", c.kind));
+      b.appendChild(bottom);
+      b.appendChild(el("span", "check", "✓"));
+      b.addEventListener("click", function () { openCard(i); });
+      g.appendChild(b);
+    });
+    updateProgress();
+  }
+  function updateProgress() {
+    var n = doneCount();
+    $("cnt").textContent = n; $("total").textContent = CARDS.length;
+    $("fill").style.width = (n / CARDS.length * 100) + "%";
+    $("toFinal").classList.toggle("show", n === CARDS.length);
+  }
+  function renderSoundBtn() {
+    var b = $("soundBtn");
+    b.textContent = state.sound ? "🔔" : "🔕";
+    b.setAttribute("aria-label", state.sound ? "Вимкнути звук" : "Увімкнути звук");
+  }
+
+  /* ---------- вікно картки ---------- */
+  var current = null, lastFocus = null;
+
+  function openCard(i) {
+    var c = CARDS[i]; current = i; lastFocus = document.activeElement;
+    var sheet = $("sheet"); sheet.innerHTML = "";
+    sheet.style.setProperty("--c", colorOf(i));
+
+    var head = el("div", "sheet-head");
+    head.appendChild(el("div", "emo", c.emo));
+    head.appendChild(el("div", "kind", c.kind + " · № " + (i + 1)));
+    var h = el("h2", "serif", c.title); h.id = "sheetTitle"; head.appendChild(h);
+    var x = el("button", "close", "✕"); x.type = "button"; x.setAttribute("aria-label", "Закрити");
+    x.addEventListener("click", closeCard); head.appendChild(x);
+    sheet.appendChild(head);
+
+    var body = el("div", "sheet-body");
+    body.appendChild(el("p", "lead", c.lead));
+    sheet.appendChild(body);
+    var foot = el("div", "sheet-foot");
+    sheet.appendChild(foot);
+
+    var main = el("button", "btn wide", c.button); main.type = "button";
+    var ctx = { card: c, body: body, foot: foot, main: main, ready: function (ok) { main.disabled = !ok; } };
+    (BUILDERS[c.type] || function () {})(ctx);
+
+    if (c.note) {
+      var lab = el("label", "field-label", c.note + " (необов’язково)");
+      var f = c.single ? el("input") : el("textarea");
+      if (c.single) { f.type = "text"; f.maxLength = 40; }
+      else { f.maxLength = 600; }
+      f.id = "noteField"; lab.htmlFor = "noteField";
+      f.value = state.notes[c.id] || "";
+      body.appendChild(lab); body.appendChild(f);
+      ctx.noteField = f;
+    }
+
+    main.addEventListener("click", function () {
+      if (ctx.collect) ctx.collect();
+      if (ctx.noteField) {
+        var v = ctx.noteField.value.trim();
+        if (v) state.notes[c.id] = v; else delete state.notes[c.id];
+      }
+      var first = !state.done[c.id];
+      state.done[c.id] = true; save();
+      sfx("done");
+      closeCard();
+      renderGrid();
+      if (doneCount() === CARDS.length && first) {
+        setTimeout(showFinal, 350);
+      } else if (first) {
+        var left = CARDS.length - doneCount();
+        toast(left === 1 ? "Залишився останній листок 🍂" : "Ще листків: " + left + " 🍂");
+      }
+    });
+    foot.appendChild(main);
+
+    $("overlay").classList.add("open");
+    document.body.style.overflow = "hidden";
+    sheet.scrollTop = 0;
+    sfx("open");
+    setTimeout(function () { x.focus({ preventScroll: true }); }, 50);
+  }
+
+  function closeCard() {
+    $("overlay").classList.remove("open");
+    document.body.style.overflow = "";
+    current = null;
+    if (lastFocus && lastFocus.focus) { try { lastFocus.focus({ preventScroll: true }); } catch (e) {} }
+  }
+  $("overlay").addEventListener("click", function (e) { if (e.target === this) closeCard(); });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && current !== null) closeCard(); });
+
+  function reactionBox(body) { var r = el("div", "reaction"); r.setAttribute("aria-live", "polite"); body.appendChild(r); return r; }
+  function showReaction(r, text) { r.textContent = text; r.classList.add("show"); }
+
+  var BUILDERS = {
+    slider: function (ctx) {
+      var c = ctx.card;
+      var val = typeof state.ans[c.id] === "number" ? state.ans[c.id] : 30;
+      var wrap = el("div", "battery");
+      var bodyB = el("div", "bat-body"); var fill = el("div", "bat-fill"); bodyB.appendChild(fill);
+      var pct = el("div", "bat-pct");
+      wrap.appendChild(bodyB); wrap.appendChild(pct);
+      var range = el("input"); range.type = "range"; range.min = 0; range.max = 100; range.step = 1; range.value = val;
+      range.setAttribute("aria-label", "Рівень заряду у відсотках");
+      ctx.body.appendChild(wrap); ctx.body.appendChild(range);
+      var r = reactionBox(ctx.body);
+      function upd() {
+        var v = +range.value;
+        fill.style.width = Math.max(v, 3) + "%";
+        fill.style.background = v <= 20 ? "#c0532b" : v <= 50 ? "#d99a1e" : "#5f6f3b";
+        pct.textContent = v + " %";
+        showReaction(r, batteryText(v));
+      }
+      range.addEventListener("input", upd); upd();
+      ctx.collect = function () { state.ans[c.id] = +range.value; };
+    },
+
+    choice: function (ctx) {
+      var c = ctx.card, sel = state.ans[c.id];
+      var box = el("div", "options"); ctx.body.appendChild(box);
+      var r = reactionBox(ctx.body);
+      var btns = [];
+      c.options.forEach(function (o, k) {
+        var b = el("button", "opt"); b.type = "button";
+        b.appendChild(el("span", "oe", o.e)); b.appendChild(el("span", "", o.t));
+        b.setAttribute("aria-pressed", "false");
+        b.addEventListener("click", function () {
+          sel = k; mark(); showReaction(r, o.r); ctx.ready(true); sfx("pick");
+        });
+        btns.push(b); box.appendChild(b);
+      });
+      function mark() { btns.forEach(function (b, k) { b.classList.toggle("sel", k === sel); b.setAttribute("aria-pressed", k === sel ? "true" : "false"); }); }
+      if (typeof sel === "number" && c.options[sel]) { mark(); showReaction(r, c.options[sel].r); ctx.ready(true); }
+      else ctx.ready(false);
+      ctx.collect = function () { state.ans[c.id] = sel; };
+    },
+
+    multi: function (ctx) {
+      var c = ctx.card, chosen = (state.ans[c.id] || []).slice();
+      var box = el("div", "options"); ctx.body.appendChild(box);
+      var r = reactionBox(ctx.body);
+      c.items.forEach(function (t, k) {
+        var b = el("button", "opt"); b.type = "button";
+        var bx = el("span", "box", ""); b.appendChild(bx); b.appendChild(el("span", "", t));
+        function paint() { var on = chosen.indexOf(k) > -1; b.classList.toggle("sel", on); bx.textContent = on ? "✓" : ""; b.setAttribute("aria-pressed", on ? "true" : "false"); }
+        b.addEventListener("click", function () {
+          var p = chosen.indexOf(k);
+          if (p > -1) chosen.splice(p, 1); else chosen.push(k);
+          paint(); showReaction(r, recognizeText(chosen.length)); sfx("pick");
+        });
+        paint(); box.appendChild(b);
+      });
+      showReaction(r, recognizeText(chosen.length));
+      ctx.collect = function () { state.ans[c.id] = chosen; };
+    },
+
+    challenge: function () {},
+    note: function () {},
+
+    permit: function (ctx) {
+      var c = ctx.card, chosen = (state.ans[c.id] || []).slice();
+      var box = el("div", "chips"); ctx.body.appendChild(box);
+      c.items.forEach(function (t, k) {
+        var b = el("button", "chip", t); b.type = "button";
+        function paint() { var on = chosen.indexOf(k) > -1; b.classList.toggle("sel", on); b.setAttribute("aria-pressed", on ? "true" : "false"); }
+        b.addEventListener("click", function () {
+          var p = chosen.indexOf(k);
+          if (p > -1) chosen.splice(p, 1); else chosen.push(k);
+          paint(); sfx("pick");
+        });
+        paint(); box.appendChild(b);
+      });
+      ctx.collect = function () { state.ans[c.id] = chosen; };
+    },
+
+    horoscope: function (ctx) {
+      var c = ctx.card, sel = state.ans[c.id];
+      var box = el("div", "signs"); ctx.body.appendChild(box);
+      var r = reactionBox(ctx.body);
+      var btns = [];
+      SIGNS.forEach(function (s, k) {
+        var b = el("button", "sign"); b.type = "button";
+        b.appendChild(el("span", "", s[0])); b.appendChild(document.createTextNode(s[1]));
+        b.addEventListener("click", function () {
+          sel = k; mark(); showReaction(r, "🔮 " + s[1] + ". " + s[2]); ctx.ready(true); sfx("pick");
+        });
+        btns.push(b); box.appendChild(b);
+      });
+      function mark() { btns.forEach(function (b, k) { b.classList.toggle("sel", k === sel); b.setAttribute("aria-pressed", k === sel ? "true" : "false"); }); }
+      if (typeof sel === "number" && SIGNS[sel]) { mark(); showReaction(r, "🔮 " + SIGNS[sel][1] + ". " + SIGNS[sel][2]); ctx.ready(true); }
+      else ctx.ready(false);
+      ctx.collect = function () { state.ans[c.id] = sel; };
+    },
+
+    idea: function (ctx) {
+      var c = ctx.card;
+      var idx = typeof state.ans[c.id] === "number" ? state.ans[c.id] : Math.floor(Math.random() * c.ideas.length);
+      var card = el("div", "idea"); ctx.body.appendChild(card);
+      function show() { card.textContent = c.ideas[idx]; }
+      show();
+      var other = el("button", "btn soft wide", "Інша ідея 🔄"); other.type = "button";
+      other.addEventListener("click", function () { idx = (idx + 1) % c.ideas.length; show(); sfx("pick"); });
+      ctx.foot.appendChild(other);
+      ctx.collect = function () { state.ans[c.id] = idx; };
+    }
+  };
+
+  function batteryText(v) {
+    if (v <= 20) return "Режим енергозбереження. Ви дотягли до канікул — і це вже маленький героїзм. 🪫";
+    if (v <= 50) return "Заряду вистачить на чай і одну серію. Саме час під’єднатися до зарядки.";
+    if (v <= 80) return "Непогано тримаєтеся! Канікули зарядять решту.";
+    return "Ого! Схоже, ви знаєте якийсь секрет. Поділитеся з колегами? ⚡";
+  }
+  function recognizeText(n) {
+    if (n === 0) return "Жодного збігу? Ви або неймовірно стійкі, або дуже скромні 😉";
+    if (n <= 3) return "Помірна вчительськість. Ви ще пам’ятаєте, що таке вихідний!";
+    if (n <= 6) return "Класика жанру! Ви справжній учитель, і канікули вам точно потрібні.";
+    return "Повний комплект! Вручаємо вам орден «Учитель до кінчиків пальців» і тиждень заслуженого спокою 🏅";
+  }
+
+  /* ---------- підсумок ---------- */
+  function scores() {
+    var t = { cozy: 0, adventure: 0, social: 0, creative: 0 };
+    CARDS.forEach(function (c) {
+      if (c.type !== "choice") return;
+      var k = state.ans[c.id];
+      if (typeof k !== "number" || !c.options[k]) return;
+      var s = c.options[k].s;
+      Object.keys(s).forEach(function (key) { t[key] += s[key]; });
+    });
+    return t;
+  }
+  function pickStyle(t) {
+    var max = Math.max(t.cozy, t.adventure, t.social, t.creative);
+    if (max === 0) return "mix";
+    var leaders = STYLE_KEYS.filter(function (k) { return t[k] === max; });
+    return leaders.length === 1 ? leaders[0] : "mix";
+  }
+  function cardById(id) { for (var i = 0; i < CARDS.length; i++) if (CARDS[i].id === id) return CARDS[i]; return null; }
+
+  function showFinal() {
+    closeCard();
+    clearTimeout(toastTimer); $("toast").classList.remove("show");
+    var t = scores(), key = pickStyle(t), st = STYLES[key];
+    var f = $("final"); f.innerHTML = "";
+
+    var hero = el("div", "final-hero");
+    hero.appendChild(el("div", "hero-leaf", "🍁"));
+    hero.appendChild(el("h1", "serif", "Канікули офіційно відкрито!"));
+    hero.appendChild(el("p", "", "Ці осінні тижні були насиченими: уроки, зошити, педради, звіти й тисяча відповідей на запитання. Тепер час для вас — відпочивайте так, як хочеться саме вам."));
+    hero.lastChild.style.color = "var(--muted)";
+    f.appendChild(hero);
+
+    var sc = el("div", "style-card"); sc.style.setProperty("--c", st.color);
+    sc.appendChild(el("div", "big", st.emo));
+    sc.appendChild(el("div", "over", "Ваш стиль відпочинку на ці канікули"));
+    sc.appendChild(el("h2", "serif", st.name));
+    sc.appendChild(el("p", "", st.text));
+    sc.appendChild(el("div", "talisman", "Талісман канікул: " + st.talisman));
+    var total = t.cozy + t.adventure + t.social + t.creative;
+    if (total > 0) {
+      var bars = el("div", "bars");
+      STYLE_KEYS.forEach(function (k) {
+        var row = el("div");
+        row.appendChild(el("span", "", STYLES[k].emo + " " + STYLES[k].short));
+        var bar = el("i"); bar.style.width = Math.max(4, Math.round(t[k] / total * 100)) + "%";
+        bar.style.opacity = t[k] ? "1" : ".35";
+        row.appendChild(bar); bars.appendChild(row);
+      });
+      sc.appendChild(bars);
+    }
+    f.appendChild(sc);
+
+    function panel(title, content) {
+      var p = el("div", "panel"); p.appendChild(el("h3", "", title));
+      if (typeof content === "string") p.appendChild(el("p", "", content)); else p.appendChild(content);
+      f.appendChild(p);
+    }
+
+    if (state.notes.word) panel("🪶 Девіз ваших канікул", "«" + state.notes.word + "»");
+
+    if (typeof state.ans.battery === "number") {
+      panel("🔋 Заряд на старті", state.ans.battery + " %. " + (state.ans.battery <= 50
+        ? "Попереду цілий тиждень, щоб дозарядитися до ста."
+        : "Хороший старт! Канікули додадуть ще трохи сяйва."));
+    }
+
+    var permit = cardById("permit"), pList = (state.ans.permit || []).map(function (k) { return permit.items[k]; }).filter(Boolean);
+    if (state.notes.permit) pList.push(state.notes.permit);
+    if (pList.length) panel("✨ Ви дозволяєте собі", pList.join(" · "));
+
+    if (typeof state.ans.horoscope === "number" && SIGNS[state.ans.horoscope]) {
+      var s = SIGNS[state.ans.horoscope]; panel("🔮 Ваш гороскоп (" + s[1] + ")", s[2]);
+    }
+    var ideaCard = cardById("idea");
+    if (typeof state.ans.idea === "number" && ideaCard.ideas[state.ans.idea]) panel("⏱️ Ваша ідея на 5 хвилин", ideaCard.ideas[state.ans.idea]);
+
+    var noteIds = ["song", "moment", "offline"];
+    var ul = el("ul", "notes"), has = false;
+    noteIds.forEach(function (id) {
+      if (!state.notes[id]) return;
+      has = true;
+      var li = el("li"); li.appendChild(el("small", "", cardById(id).title));
+      li.appendChild(document.createTextNode(state.notes[id])); ul.appendChild(li);
+    });
+    if (has) panel("📝 Ваші нотатки", ul);
+    else panel("📝 Ваші нотатки", "Цього разу без нотаток — і це теж чудово. Найважливіше залишилося з вами.");
+
+    var acts = el("div", "final-actions");
+    var share = el("button", "btn wide", "Поділитися з колегами 🔗"); share.type = "button";
+    share.addEventListener("click", shareLink);
+    var back = el("button", "btn ghost wide", "Повернутися до листків"); back.type = "button";
+    back.addEventListener("click", function () { f.classList.remove("show"); $("home").style.display = ""; window.scrollTo(0, 0); });
+    var again = el("button", "btn soft wide", "Почати спочатку ↺"); again.type = "button";
+    again.addEventListener("click", resetAll);
+    acts.appendChild(share); acts.appendChild(back); acts.appendChild(again);
+    f.appendChild(acts);
+    var pr = el("p", "privacy", "Ваші відповіді зберігаються лише у вашому браузері й нікуди не надсилаються."); f.appendChild(pr);
+
+    $("home").style.display = "none";
+    f.classList.add("show");
+    window.scrollTo(0, 0);
+    sfx("final");
+    leafRain();
+  }
+
+  function leafRain() {
+    if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    var box = el("div", "fall"); document.body.appendChild(box);
+    var L = ["🍂", "🍁", "🍃", "🍂", "🍁"];
+    for (var i = 0; i < 18; i++) {
+      var s = el("span", "", L[i % L.length]);
+      s.style.left = Math.random() * 100 + "%";
+      s.style.animationDuration = (3 + Math.random() * 3) + "s";
+      s.style.animationDelay = (Math.random() * 1.5) + "s";
+      box.appendChild(s);
+    }
+    setTimeout(function () { box.remove(); }, 8000);
+  }
+
+  /* ---------- поділитися ---------- */
+  function pageUrl() { return location.origin + location.pathname; }
+  function shareLink() {
+    var url = pageUrl();
+    function fallback() {
+      var ta = document.createElement("textarea");
+      ta.value = url; ta.setAttribute("readonly", ""); ta.style.position = "fixed"; ta.style.opacity = "0";
+      document.body.appendChild(ta); ta.select(); ta.setSelectionRange(0, url.length);
+      var ok = false; try { ok = document.execCommand("copy"); } catch (e) {}
+      ta.remove();
+      if (ok) toast("Посилання скопійовано. Надішліть його колегам 💌");
+      else window.prompt("Скопіюйте посилання й надішліть колегам:", url);
+    }
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(url).then(function () { toast("Посилання скопійовано. Надішліть його колегам 💌"); }, fallback);
+    } else fallback();
+  }
+
+  /* ---------- скидання ---------- */
+  function resetAll() {
+    if (!window.confirm("Почати спочатку? Усі відповіді й нотатки буде видалено.")) return;
+    var snd = state.sound; state = blank(); state.sound = snd; save();
+    $("final").classList.remove("show"); $("home").style.display = "";
+    renderGrid(); window.scrollTo(0, 0);
+    toast("Усі листки знову чекають на вас 🍂");
+  }
+
+  $("soundBtn").addEventListener("click", function () {
+    state.sound = !state.sound; save(); renderSoundBtn();
+    if (state.sound) sfx("pick");
+    toast(state.sound ? "Звук увімкнено 🔔" : "Звук вимкнено 🔕");
+  });
+  $("resetBtn").addEventListener("click", resetAll);
+  $("toFinalBtn").addEventListener("click", showFinal);
+
+  renderSoundBtn();
+  renderGrid();
+})();
+</script>
+</body>
+</html>
