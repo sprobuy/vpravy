@@ -157,6 +157,9 @@ input.f:focus{border-style:solid;border-color:var(--accent);outline:none;box-sha
 .lp-out{position:absolute;right:10px;left:50%;top:calc(22px + var(--hh,21px) - 1px);bottom:0;border:2px solid var(--line);border-left:0;border-radius:0 10px 10px 0;pointer-events:none}
 .lp-out::after{content:"";position:absolute;bottom:-7px;left:6px;border:6px solid transparent;border-right:9px solid var(--line);border-left:0}
 .lp>.head{z-index:2}
+.lp.post>.lp-back{bottom:calc(var(--hh,35px) - 1px)}
+.lp.post>.loop-wrap>.seq>.gap:last-child::after{display:block}
+.lab-down{position:absolute;top:calc(100% + 1px);left:calc(50% + 17px);font-size:12px;font-weight:700;color:var(--muted);pointer-events:none}
 .gap:has(+ .node.lp)::after{display:none}
 .loop-wrap{position:relative;display:flex;flex-direction:column;align-items:center;width:100%}
 .tail{position:relative;height:20px;width:100%}
@@ -250,10 +253,9 @@ const BLOCKS={
   cmd:{name:"Команда (дія)",ex:()=>"P "+SYM()+" 2(a + b) або «Підметіть підлогу.»",cls:"rect",fill:"var(--act)"},
   output:{name:"Виведення даних",ex:()=>"Вивести P",cls:"para",fill:"var(--io)"},
   if:{name:"Умова (розгалуження)",ex:()=>"a > b або «Телефон розрядився?»",cls:"dia",fill:"var(--cond)"},
-  repeat:{name:"Повторення з лічильником",ex:()=>"Повторити 10 разів",cls:"hex",fill:"var(--loop)"},
-  until:{name:"Повторення з умовою",ex:()=>"Повторити до <умова>",cls:"dia",fill:"var(--loop)"},
-  while:{name:"Повторення з передумовою",ex:()=>"Поки <умова>",cls:"dia",fill:"var(--loop)"},
-  forever:{name:"Безперервне повторення",ex:()=>"Завжди",cls:"hex",fill:"var(--loop)"}
+  while:{name:"Цикл з передумовою",ex:()=>"Поки <умова>",cls:"dia",fill:"var(--loop)"},
+  dowhile:{name:"Цикл з післяумовою",ex:()=>"… поки <умова>",cls:"dia",fill:"var(--loop)"},
+  for:{name:"Цикл з лічильником",ex:()=>"Для i від 1 до n",cls:"hex",fill:"var(--loop)"}
 };
 const LEVELS=[{id:"free",free:true,starter:()=>[]}];
 const LIDX=Object.fromEntries(LEVELS.map((L,i)=>[L.id,i]));
@@ -261,15 +263,21 @@ const CUR=()=>LEVELS[LIDX[S.level]];
 
 /* перенесення старих схем */
 const ASSIGN_RE=/^\s*([\p{L}_][\p{L}\p{N}_’'ʼ]*)\s*(:=|←|<-|=)(?!=)\s*([\s\S]*)$/u;
-const FIELDS={input:["v"],cmd:["t"],output:["e"],if:["c"],repeat:["n"],until:["c"],while:["c"],forever:[]};
-const KIDS={if:["yes","no"],repeat:["body"],until:["body"],while:["body"],forever:["body"]};
+const FIELDS={input:["v"],cmd:["t"],output:["e"],if:["c"],while:["c"],dowhile:["c"],for:["v","a","b","s"]};
+const KIDS={if:["yes","no"],while:["body"],dowhile:["body"],for:["body"]};
+const FDEF={for:{v:"i",a:"1",b:"",s:"1"}};
+let freeVar="i";
+function pickFreeVar(list){const txt=JSON.stringify(list||[]);for(const c of ["i","k","j","m","t","p"])if(!new RegExp('(^|[^A-Za-z0-9_])'+c+'($|[^A-Za-z0-9_])').test(txt.replace(/"(id|type|v|t|e|c|n|a|b|s|yes|no|body)":/g,'')))return c;return "i"}
 const seen=new Set();
 function migrateNodes(list){if(!Array.isArray(list))return[];return list.map(n=>{
     if(!n||typeof n!=="object")return null;
     if(n.type==="assign")n={id:n.id,type:"cmd",t:String(n.v??"")+" "+SYM()+" "+String(n.e??"")};
+    if(n.type==="repeat")n={id:n.id,type:"for",v:freeVar,a:"1",b:String(n.n??"3")||"3",s:"1",body:n.body};
+    if(n.type==="until")n={id:n.id,type:"while",c:String(n.c??"").trim()?"не ("+String(n.c).trim()+")":"",body:n.body};
+    if(n.type==="forever")n={id:n.id,type:"while",c:"1 = 1",body:n.body};
     if(!BLOCKS[n.type])return null;
     const o={id:(typeof n.id==="string"&&n.id&&!seen.has(n.id))?n.id:nid(),type:n.type};seen.add(o.id);
-    for(const f of FIELDS[n.type])o[f]=typeof n[f]==="string"?n[f]:(typeof n[f]==="number"?String(n[f]):(n.type==="repeat"?"3":""));
+    for(const f of FIELDS[n.type])o[f]=typeof n[f]==="string"?n[f]:(typeof n[f]==="number"?String(n[f]):((FDEF[n.type]||{})[f]??""));
     for(const k of (KIDS[n.type]||[]))o[k]=migrateNodes(n[k]);
     return o}).filter(Boolean)}
 try{
@@ -281,7 +289,7 @@ const hadOtherSign=S.notation==="arrow";delete S.notation;
 S.level="free";
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
 function prog(){const k=S.level;if(!Array.isArray(S.progs[k])){S.progs[k]=CUR().starter?CUR().starter():[];save()}return S.progs[k]}
-for(const k in S.progs){seen.clear();S.progs[k]=migrateNodes(S.progs[k])}
+for(const k in S.progs){seen.clear();freeVar=pickFreeVar(S.progs[k]);S.progs[k]=migrateNodes(S.progs[k])}
 
 function findIn(list,id){for(let i=0;i<list.length;i++){const n=list[i];if(n.id===id)return{list,i,node:n};for(const key of ["yes","no","body"]){if(Array.isArray(n[key])){const r=findIn(n[key],id);if(r)return r}}}return null}
 function listOf(pid,key){if(pid==="root")return prog();const r=findIn(prog(),pid);return r?r.node[key]:null}
@@ -385,7 +393,9 @@ function parseCmd(t){
 }
 
 /* ---------- Виконання ---------- */
-function* cond(src,env){if(isQuestion(src)){const a=yield {q:String(src).trim()};return !!a}
+function* cond(src,env){const neg=/^\s*не\s*\(\s*([^()]*\?)\s*\)\s*$/i.exec(String(src??""))||/^\s*не\s+([^()]*\?)\s*$/i.exec(String(src??""));
+  if(neg){const a=yield {q:neg[1].trim()};return !a}
+  if(isQuestion(src)){const a=yield {q:String(src).trim()};return !!a}
   try{return truth(evalExpr(src,env))}catch(e){
     const st=String(src).trim();
     if(/^[\p{L}’'ʼ\s-]+$/u.test(st)&&hasCyr(st)&&st.split(/\s+/).length>=2){const er=new Error("Схоже, умова «"+String(src).trim()+"» — це запитання. Допишіть у кінці знак питання: «"+String(src).trim()+"?». Тоді під час виконання на нього можна буде відповісти «Так» або «Ні».");throw er}
@@ -400,18 +410,19 @@ function* exec(list,env,out){
     else if(n.type==="cmd"){const c=parseCmd(n.t);if(c.kind==="assign"){const v=evalExpr(c.e,env);if(isNum(v))fmt(v);env[varName(c.v)]=v}else out(c.text,"act")}
     else if(n.type==="output"){out(fmt(evalExpr(n.e,env)))}
     else if(n.type==="if"){const c=yield* cond(n.c,env);yield* exec(c?n.yes:n.no,env,out)}
-    else if(n.type==="repeat"){const k=evalExpr(n.n,env);
-      if(!isNum(k)||k<0||Math.round(k)!==k)throw new Error("Кількість повторень має бути цілим невід’ємним числом.");
-      if(k>10000)throw new Error("Забагато повторень: можна не більше ніж 10 000.");
-      for(let i=0;i<k;i++){yield* exec(n.body,env,out);yield n.id}}
-    else if(n.type==="until"){while(true){if(yield* cond(n.c,env))break;yield* exec(n.body,env,out);yield n.id}}
+    else if(n.type==="for"){const name=varName(n.v);
+      const num=(src,what)=>{if(!String(src??"").trim())throw new Error("Укажіть "+what+" у циклі з лічильником.");const v=evalExpr(src,env);if(!isNum(v))throw new Error("У циклі з лічильником "+what+" має бути числом.");return v};
+      const a=num(n.a,"початкове значення"),b=num(n.b,"кінцеве значення"),st=String(n.s??"").trim()===""?1:num(n.s,"крок");
+      if(st===0)throw new Error("Крок циклу з лічильником не може дорівнювати нулю: цикл ніколи не завершився б.");
+      const cnt=Math.max(0,Math.floor((b-a)/st+1e-9)+1);
+      if(cnt>10000)throw new Error("Забагато повторень: можна не більше ніж 10 000.");
+      for(let k=0;k<cnt;k++){env[name]=Math.round((a+k*st)*1e9)/1e9;yield* exec(n.body,env,out);yield n.id}}
     else if(n.type==="while"){while(true){if(!(yield* cond(n.c,env)))break;yield* exec(n.body,env,out);yield n.id}}
-    else if(n.type==="forever"){while(true){yield* exec(n.body,env,out);yield n.id}}
+    else if(n.type==="dowhile"){while(true){yield* exec(n.body,env,out);yield n.id;if(!(yield* cond(n.c,env)))break}}
   }
 }
 const MAXSTEPS=100000;
 const LIMIT="Алгоритм виконав понад 100 000 кроків і не завершився. Можливо, цикл ніколи не закінчується: перевірте, чи змінюється змінна в умові циклу.";
-const FOREVER_STOP="Безперервне повторення саме не завершується. Виконання зупинено після 100 000 кроків.";
 
 let R=null;
 function delay(){return Math.round(1100/Math.pow(1.55,+$("#speed").value-1))}
@@ -438,7 +449,7 @@ function step(send,quiet){
   if(r.done){printLine("Алгоритм завершено.","s");stop(true);document.querySelector(".term.end")?.classList.add("active");return false}
   if(r.value&&typeof r.value==="object"){R.waiting=true;if(R.cur)mark(R.cur,"active");if("q" in r.value)askQ(r.value.q);else askFor(r.value.ask);return false}
   R.cur=r.value;if(!quiet)mark(r.value,"active");
-  if(++R.steps>MAXSTEPS){const id=R.cur;if(usedTypes(prog()).has("forever")){printLine(FOREVER_STOP,"s");stop(true);mark(id,"active")}else{printLine("Помилка: "+LIMIT,"e");stop(true);mark(id,"err")}return false}
+  if(++R.steps>MAXSTEPS){const id=R.cur;printLine("Помилка: "+LIMIT,"e");stop(true);mark(id,"err");return false}
   return true;
 }
 function loop(){if(!R||!R.auto)return;if(+$("#speed").value>=10){const t0=performance.now();while(performance.now()-t0<25){if(!step(undefined,true))return}if(R){mark(R.cur,"active");showVars(R.env)}R.timer=setTimeout(loop,0);return}if(step())R.timer=setTimeout(loop,delay())}
@@ -463,6 +474,7 @@ function inputVars(list,set=new Set()){for(const n of list){if(n.type==="input")
 function definedVars(list,set=new Set()){for(const n of list){
     if(n.type==="input")splitVars(n.v).forEach(v=>set.add(latin(v.replace(/['ʼ]/g,"’"))));
     if(n.type==="cmd"){const m=ASSIGN_RE.exec(String(n.t??""));if(m)set.add(latin(m[1].replace(/['ʼ]/g,"’")))}
+    if(n.type==="for"&&String(n.v??"").trim())set.add(latin(String(n.v).trim()));
     for(const k of ["yes","no","body"])if(n[k])definedVars(n[k],set)}return set}
 function varTip(name){
   const def=definedVars(prog());const twinCase=[...def].find(v=>v!==name&&v.toLowerCase()===name.toLowerCase());
@@ -481,6 +493,7 @@ function tools(){return '<span class="tools"><button type="button" data-act="up"
 function gap(pid,key,i,dead){return '<div class="gap'+(dead?" dead":"")+'"'+(dead?' title="Сюди виконання ніколи не дійде: безперервне повторення не завершується."':"")+'><button type="button" class="slot" data-pid="'+pid+'" data-key="'+key+'" data-i="'+i+'" aria-label="Додати блок" aria-haspopup="menu" aria-expanded="false">+</button></div>'}
 function seq(list,pid,key){let h='<div class="seq">'+gap(pid,key,0);let dead=false;list.forEach((n,i)=>{h+=node(n);if(n.type==="forever")dead=true;h+=gap(pid,key,i+1,dead)});return h+"</div>"}
 function loopWrap(n,top){return '<div class="loop-wrap">'+(top?'<span class="lab">'+top+"</span>":"")+seq(n.body,n.id,"body")+'<div class="tail"></div></div>'}
+function postNode(n){return '<div class="node lp post" data-id="'+n.id+'"><span class="lp-back"></span><div class="lp-in"></div><div class="loop-wrap">'+seq(n.body,n.id,"body")+'</div><div class="head lphead"><span class="lab-y">Так</span><div class="shape dia wh">Поки '+fld("c",n.c,"умова")+"</div>"+tools()+'<span class="lab-down">Ні</span></div></div>'}
 function loopNode(n,headHtml,inLab,outLab){return '<div class="node lp" data-id="'+n.id+'"><span class="lp-back"></span>'+(outLab!==null?'<span class="lp-out"></span>':"")+'<div class="lp-in"></div><div class="head lphead">'+headHtml+tools()+(outLab?'<span class="lab-n">'+outLab+"</span>":"")+"</div>"+loopWrap(n,inLab)+"</div>"}
 function node(n){
   const o='<div class="node" data-id="'+n.id+'">';
@@ -489,10 +502,9 @@ function node(n){
     case"output":return o+'<div class="head"><div class="shape para">Вивести '+fld("e",n.e,"вираз")+"</div>"+tools()+"</div></div>";
     case"cmd":return o+'<div class="head"><div class="shape rect">'+fld("t",n.t,"команда")+"</div>"+tools()+"</div></div>";
     case"if":return o+'<div class="head ifhead"><span class="lab-y">Так</span><div class="shape dia">'+fld("c",n.c,"умова")+"</div>"+tools()+'<span class="lab-n">Ні</span></div><div class="branch"><div class="col">'+seq(n.yes,n.id,"yes")+'</div><div class="col">'+seq(n.no,n.id,"no")+"</div></div></div>";
-    case"repeat":return loopNode(n,'<div class="shape hex">Повторити '+fld("n",n.n,"5")+' <span class="pl">'+plural(n.n)+"</span></div>","Так","Ні");
-    case"until":return loopNode(n,'<div class="shape dia wh">Повторити до '+fld("c",n.c,"умова")+"</div>","Ні","Так");
+    case"for":return loopNode(n,'<div class="shape hex">Для '+fld("v",n.v,"i")+" від "+fld("a",n.a,"1")+" до "+fld("b",n.b,"10")+" крок "+fld("s",n.s,"1")+"</div>","Так","Ні");
     case"while":return loopNode(n,'<div class="shape dia wh">Поки '+fld("c",n.c,"умова")+"</div>","Так","Ні");
-    case"forever":return loopNode(n,'<div class="shape hex" tabindex="0">Завжди</div>',"",null);
+    case"dowhile":return postNode(n);
   }
   return "";
 }
@@ -532,7 +544,7 @@ $("#chart").addEventListener("click",e=>{
 menu.addEventListener("click",e=>{const b=e.target.closest("[data-type]");if(!b||!target)return;const t=b.dataset.type;
   const n={id:nid(),type:t};
   if(t==="input")n.v="";if(t==="cmd")n.t="";if(t==="output")n.e="";
-  if(t==="if"){n.c="";n.yes=[];n.no=[]}if(t==="repeat"){n.n="3";n.body=[]}if(t==="until"||t==="while"){n.c="";n.body=[]}if(t==="forever")n.body=[];
+  if(t==="if"){n.c="";n.yes=[];n.no=[]}if(t==="while"||t==="dowhile"){n.c="";n.body=[]}if(t==="for"){Object.assign(n,FDEF.for);n.body=[]}
   const l=listOf(target.pid,target.key);if(l){l.splice(target.i,0,n);save()}closeMenu();render(n.id)});
 document.addEventListener("click",e=>{if(!menu.hidden&&!menu.contains(e.target))closeMenu()});
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!menu.hidden){const s=openSlot;closeMenu();s&&s.focus()}});
