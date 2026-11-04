@@ -1,0 +1,529 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta property="og:title" content="Конструктор алгоритмів">
+<meta property="og:description" content="Створюйте алгоритми у вигляді блок-схем і перевіряйте їх виконання крок за кроком.">
+<meta name="description" content="Вільний конструктор блок-схем: створюйте алгоритми й перевіряйте їх виконання крок за кроком.">
+<style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Вільний конструктор алгоритмів</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Unbounded:wght@500;700&display=swap">
+<style>
+/* Макет: зошит у клітинку як полотно для блок-схеми; ліворуч панель виконання */
+:root{
+  --paper:#f8fafd; --grid:#dbe5f3; --margin:#e7808e;
+  --bg:#eef2f8; --surface:#ffffff; --ink:#1c2a4a; --muted:#5d6a86; --line:#4a5b80;
+  --accent:#2448b0; --accent-ink:#ffffff; --accent-soft:#e3e9fb; --book:#8c1d40; --book-ink:#ffffff; --book-soft:#f6e3e9;
+  --io:#fff2bf; --act:#dbe8fd; --cond:#d8f3e1; --loop:#ebe2fb; --term:#ffffff;
+  --field:rgba(255,255,255,.75); --good:#166b3c; --good-soft:#dcf3e5; --bad:#c8364a; --bad-soft:#fbe3e6;
+  --f-display:"Unbounded","Golos Text",system-ui,sans-serif;
+  --f-body:"Golos Text",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,"Cascadia Mono",Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#141b29; --grid:#1f2a3e; --margin:#7a3a46;
+  --bg:#0f1420; --surface:#18202f; --ink:#dfe6f4; --muted:#9aa6bf; --line:#8b9bbd;
+  --accent:#87a6ff; --accent-ink:#0f1420; --accent-soft:#223056; --book:#ec8aa6; --book-ink:#1a0d13; --book-soft:#3a1f29;
+  --io:#3b3418; --act:#1b2e4d; --cond:#173828; --loop:#2c2346; --term:#1b2333;
+  --field:rgba(10,14,22,.55); --good:#5fd08f; --good-soft:#163526; --bad:#ff7d8d; --bad-soft:#3d1c23;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#141b29; --grid:#1f2a3e; --margin:#7a3a46;
+  --bg:#0f1420; --surface:#18202f; --ink:#dfe6f4; --muted:#9aa6bf; --line:#8b9bbd;
+  --accent:#87a6ff; --accent-ink:#0f1420; --accent-soft:#223056; --book:#ec8aa6; --book-ink:#1a0d13; --book-soft:#3a1f29;
+  --io:#3b3418; --act:#1b2e4d; --cond:#173828; --loop:#2c2346; --term:#1b2333;
+  --field:rgba(10,14,22,.55); --good:#5fd08f; --good-soft:#163526; --bad:#ff7d8d; --bad-soft:#3d1c23;
+  color-scheme:dark}
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.top{padding-block:18px 14px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.top h1{font-family:var(--f-display);font-weight:700;font-size:clamp(20px,3.2vw,28px);margin:0;letter-spacing:-.01em;text-wrap:balance}
+.top p{margin:4px 0 0;color:var(--muted);font-size:14px}
+.top-row{display:flex;justify-content:center;align-items:flex-start;gap:12px;flex-wrap:wrap;text-align:center}
+
+.app{display:grid;grid-template-columns:minmax(300px,380px) minmax(0,1fr);grid-template-areas:"run canvas";grid-template-rows:auto;gap:16px;align-items:start;padding-block:6px 28px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+@media (max-width:860px){.app{grid-template-columns:minmax(0,1fr);grid-template-areas:"canvas" "run"}}
+.card{background:var(--surface);border:1px solid var(--grid);border-radius:12px;padding:16px;min-width:0}
+
+.btns{display:flex;flex-wrap:wrap;gap:8px}
+.btn{border:1px solid var(--grid);background:var(--surface);border-radius:8px;padding:7px 12px;cursor:pointer;font-weight:600;font-size:14px;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{border-color:var(--line)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.good{background:var(--good);border-color:var(--good);color:var(--surface)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.ghost{background:transparent}
+.speed{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);margin-top:10px}
+.speed input{flex:1;accent-color:var(--accent)}
+.run h3{font-size:13px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin:16px 0 6px}
+.ask{margin-top:12px;border:2px solid var(--accent);border-radius:10px;padding:10px;background:var(--accent-soft)}
+.ask label{display:block;font-weight:600;margin-bottom:6px}
+.ask .askrow{display:flex;gap:8px}
+.ask .yn{display:flex;gap:8px}
+.ask .yn .btn{flex:1;justify-content:center;padding:9px 12px}
+.ask input{flex:1;min-width:0;font:15px var(--f-mono);padding:7px 9px;border-radius:7px;border:1px solid var(--line);background:var(--surface);color:var(--ink)}
+table.vars{width:100%;border-collapse:collapse;font-family:var(--f-mono);font-size:13px;font-variant-numeric:tabular-nums}
+.vars td{border-bottom:1px solid var(--grid);padding:4px 6px}
+.vars td:first-child{color:var(--muted);width:40%}
+.empty{color:var(--muted);font-size:13px}
+.console{font-family:var(--f-mono);font-size:13px;background:var(--paper);border-radius:8px;padding:8px 10px;min-height:44px;max-height:180px;overflow:auto;white-space:pre-wrap;word-break:break-word}
+.console .e{color:var(--bad)}
+.console .s{color:var(--muted)}
+.console .act{color:var(--ink);font-weight:600}
+.console .t,.tip{color:var(--accent)}
+
+/* Полотно */
+.canvas-wrap{grid-area:canvas;min-width:0;position:relative}
+.canvas-bar{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.canvas-bar .hint{font-size:13px;color:var(--muted)}
+.canvas{overflow:auto;border:1px solid var(--grid);border-radius:12px;min-height:520px;
+  background-color:var(--paper);
+  background-image:linear-gradient(90deg,transparent 34px,var(--margin) 34px,var(--margin) 36px,transparent 36px),linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:100% 100%,20px 20px,20px 20px;background-attachment:local}
+.chart{display:flex;flex-direction:column;align-items:center;width:max-content;min-width:100%;padding:24px 56px 40px 64px}
+.seq{display:flex;flex-direction:column;align-items:center}
+.node{display:flex;flex-direction:column;align-items:center;position:relative}
+.head{position:relative;display:flex;justify-content:center}
+.gap{position:relative;height:32px;width:100%;min-width:40px;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+.gap::before,.tail::before,.stub{content:"";position:absolute;left:50%;top:0;bottom:0;width:2px;transform:translateX(-50%);background:var(--line)}
+.gap::after{content:"";position:absolute;left:50%;bottom:0;transform:translateX(-50%);border:5px solid transparent;border-top:6px solid var(--line);border-bottom:0}
+.stub{position:relative;left:auto;transform:none;height:14px;display:block}
+.slot{position:relative;z-index:4;width:22px;height:22px;border-radius:50%;border:1.5px solid var(--line);background:var(--paper);color:var(--accent);font-weight:700;line-height:1;cursor:pointer;display:grid;place-items:center;padding:0;font-size:15px;transition:transform .12s}
+.slot:hover,.slot[aria-expanded="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);transform:scale(1.15)}
+
+.shape{position:relative;isolation:isolate;display:flex;align-items:center;gap:6px;white-space:nowrap;font-weight:600;font-size:14px;min-height:42px}
+.shape::before,.shape::after{content:"";position:absolute;z-index:-1;clip-path:var(--cp)}
+.shape::before{inset:0;background:var(--line)}
+.shape::after{inset:2px;background:var(--fill)}
+.term{--fill:var(--term);--cp:inset(0 round 999px);padding:8px 26px}
+.rect{--fill:var(--act);--cp:inset(0 round 4px);padding:8px 14px}
+.para{--fill:var(--io);--cp:polygon(14px 0,100% 0,calc(100% - 14px) 100%,0 100%);padding:8px 28px}
+.dia{--fill:var(--cond);--cp:polygon(50% 0,100% 50%,50% 100%,0 50%);padding:20px 58px;min-height:70px}
+.hex{--fill:var(--loop);--cp:polygon(16px 0,calc(100% - 16px) 0,100% 50%,calc(100% - 16px) 100%,16px 100%,0 50%);padding:8px 28px}
+.dia.wh{--fill:var(--loop)}
+.node[data-id]>.head>.shape{min-width:168px;justify-content:center}
+.node.active>.head .shape::before{background:var(--accent);inset:-2px}
+.node.active>.head .shape::after{inset:2px}
+.node.active>.head::before{content:"▶";position:absolute;right:calc(100% + 8px);top:50%;transform:translateY(-50%);color:var(--accent);font-size:14px}
+.node.err>.head .shape::before{background:var(--bad);inset:-2px}
+.term.active::before{background:var(--accent)}
+
+input.f{font:13.5px var(--f-mono);color:var(--ink);background:var(--field);border:1px dashed var(--line);border-radius:5px;padding:3px 6px;min-width:3ch;width:6ch;font-weight:400}
+input.f::placeholder{color:var(--muted);opacity:.8}
+input.f:focus{border-style:solid;border-color:var(--accent);outline:none;box-shadow:0 0 0 2px var(--accent-soft)}
+.arrow{font-family:var(--f-mono);font-weight:700}
+
+.tools{position:absolute;right:-12px;top:-14px;display:flex;gap:2px;opacity:0;visibility:hidden;transition:opacity .12s;z-index:5;padding:2px;border-radius:8px;background:var(--surface);box-shadow:0 1px 4px rgba(15,25,50,.18)}
+.node:hover>.head .tools,.head:focus-within .tools{opacity:1;visibility:visible}
+.shape[tabindex]:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.tools button{width:22px;height:22px;border-radius:6px;border:1px solid var(--grid);background:var(--surface);cursor:pointer;padding:0;font-size:12px;line-height:1;color:var(--muted)}
+.tools button:hover{color:var(--ink);border-color:var(--line)}
+.tools button.del:hover{color:var(--bad);border-color:var(--bad)}
+
+.branch{display:grid;grid-template-columns:auto auto;position:relative;width:max-content;max-width:none}
+.col::before,.col::after{content:"";position:absolute;height:2px;background:var(--line)}
+.col::before{top:0}.col::after{bottom:0}
+.col:first-child::before,.col:first-child::after{left:50%;right:0}
+.col:last-child::before,.col:last-child::after{left:0;right:50%}
+.col{display:flex;flex-direction:column;align-items:center;padding:0 16px;position:relative;min-width:130px}
+.col>.seq{flex:1;width:100%}
+.col>.seq>.gap:last-child{flex:1 0 32px}
+.col>.seq>.gap:last-child::after{display:none}
+.lab{position:absolute;top:3px;left:calc(50% + 16px);font-size:12px;font-weight:700;color:var(--muted);z-index:2;pointer-events:none}
+.loop-wrap{position:relative;display:flex;flex-direction:column;align-items:center;width:100%;padding:0 40px}
+.loop-wrap::before{content:"";position:absolute;left:10px;right:50%;top:7px;bottom:9px;border:2px solid var(--line);border-right:0;border-radius:12px 0 0 12px}
+.loop-wrap::after{content:"";position:absolute;top:2px;left:calc(50% - 14px);border:6px solid transparent;border-left:9px solid var(--line);border-right:0}
+.tail{position:relative;height:18px;width:100%}
+.tail .lab{top:0}
+.tail.noexit::before{bottom:50%}
+.gap.dead::before{background:repeating-linear-gradient(var(--line) 0 4px,transparent 4px 8px);opacity:.5}
+.gap.dead::after{display:none}
+
+.menu{position:fixed;z-index:50;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:6px;box-shadow:0 12px 30px rgba(15,25,50,.22);display:grid;gap:2px;width:max-content;min-width:220px;max-width:calc(100vw - 16px)}
+.menu button{display:flex;align-items:center;gap:10px;text-align:left;border:0;background:transparent;border-radius:8px;padding:7px 8px;cursor:pointer}
+.menu button:hover,.menu button:focus-visible{background:var(--accent-soft)}
+.menu small{display:block;color:var(--muted);font-size:12px;font-weight:400}
+.mini{flex:0 0 30px;height:20px;position:relative;isolation:isolate}
+.mini::before{content:"";position:absolute;inset:0;background:var(--line);clip-path:var(--cp);z-index:-1}
+.mini::after{content:"";position:absolute;inset:1.5px;background:var(--fill);clip-path:var(--cp);z-index:-1}
+.mini.para{--cp:polygon(6px 0,100% 0,calc(100% - 6px) 100%,0 100%);padding:0}
+.mini.hex{--cp:polygon(6px 0,calc(100% - 6px) 0,100% 50%,calc(100% - 6px) 100%,6px 100%,0 50%);padding:0}
+.mini.dia{padding:0;min-height:0}
+.mini.rect{padding:0}
+.confirm{display:inline-flex;gap:6px;align-items:center;font-size:13px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+</head>
+<body>
+<header class="top">
+  <div class="top-row">
+    <div>
+      <h1>Конструктор алгоритмів</h1>
+      <p>Створюйте алгоритми у вигляді блок-схем і перевіряйте їх виконання крок за кроком</p>
+    </div>
+  </div>
+</header>
+
+<div class="app">
+  <section class="canvas-wrap">
+    <div class="canvas-bar">
+      <span class="hint">Натисніть <b>+</b> на лінії, щоб додати блок. Значення вписуйте безпосередньо в блоки.</span>
+      <span id="clearBox"><button class="btn ghost" id="clearBtn" type="button">Очистити схему</button></span>
+    </div>
+    <div class="canvas" id="canvas"><div class="chart" id="chart"></div></div>
+  </section>
+
+  <section class="card run">
+    <div class="btns">
+      <button class="btn primary" id="runBtn" type="button">▶ Запустити</button>
+      <button class="btn" id="stepBtn" type="button">Крок</button>
+      <button class="btn" id="stopBtn" type="button" disabled>■ Стоп</button>
+    </div>
+    <label class="speed" for="speed">Повільно <input type="range" id="speed" min="1" max="10" value="5"> Миттєво</label>
+    <div class="ask" id="ask" hidden>
+      <label for="askInput" id="askLabel">Введіть значення</label>
+      <div class="askrow" id="askForm"><input id="askInput" autocomplete="off" enterkeyhint="done" inputmode="text"><button class="btn primary" type="button" id="askOk">Ввести</button></div>
+      <div class="yn" id="askYN" hidden><button type="button" class="btn primary" data-yn="1">Так</button><button type="button" class="btn" data-yn="0">Ні</button></div>
+    </div>
+    <h3>Змінні</h3>
+    <div id="vars"><span class="empty">Запустіть схему, щоб побачити значення змінних.</span></div>
+    <h3>Виведення</h3>
+    <div class="console" id="console"><span class="s">Тут з’являтиметься те, що виводить алгоритм.</span></div>
+  </section>
+</div>
+
+<div class="menu" id="menu" hidden role="menu"></div>
+
+<script>
+(function(){
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const nid=()=>"n"+Math.random().toString(36).slice(2,9);
+
+/* ---------- Стан ---------- */
+const KEY="algo-free-v1";
+let S={level:"free",progs:{}};
+const SYM=()=>"=";
+const H=s=>String(s).split("{=}").join(SYM());
+
+const BLOCKS={
+  input:{name:"Введення даних",ex:()=>"Ввести a і b",cls:"para",fill:"var(--io)"},
+  cmd:{name:"Команда (дія)",ex:()=>"P "+SYM()+" 2(a + b) або «Підметіть підлогу.»",cls:"rect",fill:"var(--act)"},
+  output:{name:"Виведення даних",ex:()=>"Вивести P",cls:"para",fill:"var(--io)"},
+  if:{name:"Умова (розгалуження)",ex:()=>"a > b або «Телефон розрядився?»",cls:"dia",fill:"var(--cond)"},
+  repeat:{name:"Повторення з лічильником",ex:()=>"Повторити 10 разів",cls:"hex",fill:"var(--loop)"},
+  until:{name:"Повторення з умовою",ex:()=>"Повторити до <умова>",cls:"dia",fill:"var(--loop)"},
+  while:{name:"Повторення з передумовою",ex:()=>"Поки <умова>",cls:"dia",fill:"var(--loop)"},
+  forever:{name:"Безперервне повторення",ex:()=>"Завжди",cls:"hex",fill:"var(--loop)"}
+};
+const LEVELS=[{id:"free",free:true,starter:()=>[]}];
+const LIDX=Object.fromEntries(LEVELS.map((L,i)=>[L.id,i]));
+const CUR=()=>LEVELS[LIDX[S.level]];
+
+/* перенесення старих схем */
+const ASSIGN_RE=/^\s*([\p{L}_][\p{L}\p{N}_’'ʼ]*)\s*(:=|←|<-|=)(?!=)\s*([\s\S]*)$/u;
+const FIELDS={input:["v"],cmd:["t"],output:["e"],if:["c"],repeat:["n"],until:["c"],while:["c"],forever:[]};
+const KIDS={if:["yes","no"],repeat:["body"],until:["body"],while:["body"],forever:["body"]};
+const seen=new Set();
+function migrateNodes(list){if(!Array.isArray(list))return[];return list.map(n=>{
+    if(!n||typeof n!=="object")return null;
+    if(n.type==="assign")n={id:n.id,type:"cmd",t:String(n.v??"")+" "+SYM()+" "+String(n.e??"")};
+    if(!BLOCKS[n.type])return null;
+    const o={id:(typeof n.id==="string"&&n.id&&!seen.has(n.id))?n.id:nid(),type:n.type};seen.add(o.id);
+    for(const f of FIELDS[n.type])o[f]=typeof n[f]==="string"?n[f]:(typeof n[f]==="number"?String(n[f]):(n.type==="repeat"?"3":""));
+    for(const k of (KIDS[n.type]||[]))o[k]=migrateNodes(n[k]);
+    return o}).filter(Boolean)}
+try{
+  const raw=localStorage.getItem(KEY);
+  if(raw){const d=JSON.parse(raw);if(d&&typeof d==="object")S=Object.assign(S,d)}
+}catch(e){}
+if(!S.progs||typeof S.progs!=="object")S.progs={};delete S.done;
+const hadOtherSign=S.notation==="arrow";delete S.notation;
+S.level="free";
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function prog(){const k=S.level;if(!Array.isArray(S.progs[k])){S.progs[k]=CUR().starter?CUR().starter():[];save()}return S.progs[k]}
+for(const k in S.progs){seen.clear();S.progs[k]=migrateNodes(S.progs[k])}
+
+function findIn(list,id){for(let i=0;i<list.length;i++){const n=list[i];if(n.id===id)return{list,i,node:n};for(const key of ["yes","no","body"]){if(Array.isArray(n[key])){const r=findIn(n[key],id);if(r)return r}}}return null}
+function listOf(pid,key){if(pid==="root")return prog();const r=findIn(prog(),pid);return r?r.node[key]:null}
+function usedTypes(list,set=new Set()){for(const n of list){set.add(n.type);for(const k of ["yes","no","body"])if(n[k])usedTypes(n[k],set)}return set}
+
+/* ---------- Вирази ---------- */
+const LOOK={"а":"a","е":"e","і":"i","о":"o","р":"p","с":"c","х":"x","у":"y","к":"k","А":"A","В":"B","Е":"E","І":"I","К":"K","М":"M","Н":"H","О":"O","Р":"P","С":"C","Т":"T","Х":"X"};
+const latin=n=>[...String(n)].map(c=>LOOK[c]||c).join("");
+const hasCyr=n=>/[\u0400-\u04FF]/.test(n);
+function cyrError(w,inName){
+  if(/^(так|ні|істинне|хибне)$/i.test(w))return new Error("Якщо «"+w+"» — це текст, візьміть його в лапки: «"+w+"». А щоб застосунок сам визначив, істинне висловлювання чи хибне, запишіть саме висловлювання, наприклад 1 ≤ 2.");
+  if(inName)return new Error("Назву змінної «"+w+"» запишіть латинськими літерами, наприклад s або x.");
+  return new Error("Назви змінних у формулах записують латинськими літерами, а «"+w+"» містить українські літери. Якщо це текст, візьміть його в лапки: «"+w+"».")}
+function tokenize(s){
+  const t=[];s=String(s??"");let i=0;
+  const two={">=":">=","<=":"<=","==":"=","!=":"!=","<>":"!=","&&":"and","||":"or"};
+  const one={">":">","<":"<","=":"=","≥":">=","≤":"<=","≠":"!=","+":"+","-":"-","−":"-","–":"-","*":"*","×":"*","·":"*","/":"/",":":"/","÷":"/","%":"%","(":"(",")":")","!":"not"};
+  const quotes={'"':'"',"«":"»","“":"”","„":"“","'":"'"};
+  while(i<s.length){
+    const ch=s[i];
+    if(/\s/.test(ch)){i++;continue}
+    if(/[0-9]/.test(ch)){let j=i;while(j<s.length&&/[0-9]/.test(s[j]))j++;if((s[j]==="."||s[j]===",")&&/[0-9]/.test(s[j+1]||"")){j++;while(j<s.length&&/[0-9]/.test(s[j]))j++}t.push({k:"num",v:parseFloat(s.slice(i,j).replace(",","."))});i=j;continue}
+    if(quotes[ch]){const close=quotes[ch];let j=i+1;while(j<s.length&&s[j]!==close&&!(ch==="„"&&s[j]==="”"))j++;if(j>=s.length)throw new Error("Текст у виразі «"+s+"» не закрито лапками.");t.push({k:"str",v:s.slice(i+1,j)});i=j+1;continue}
+    if(/[\p{L}_]/u.test(ch)){let j=i;while(j<s.length&&(/[\p{L}\p{N}_’ʼ]/u.test(s[j])||(s[j]==="'"&&/\p{L}/u.test(s[j+1]||""))))j++;const w=s.slice(i,j).replace(/['ʼ]/g,"’"),lw=w.toLowerCase();
+      if(lw==="і"||lw==="та"||lw==="and")t.push({k:"op",v:"and",raw:lw==="і"?w:null});
+      else if(lw==="або"||lw==="or")t.push({k:"op",v:"or"});
+      else if(lw==="не"||lw==="not")t.push({k:"op",v:"not"});
+      else{const lw2=latin(w);if(hasCyr(lw2))throw cyrError(w);t.push({k:"id",v:lw2})}
+      i=j;continue}
+    const d=s.slice(i,i+2);if(two[d]){t.push({k:"op",v:two[d]});i+=2;continue}
+    if(one[ch]){t.push({k:"op",v:one[ch]});i++;continue}
+    const sym=String.fromCodePoint(s.codePointAt(i));
+    if(sym==="←")throw new Error("Знак присвоєння ← можна писати лише в блоці «Команда».");
+    if(sym==="^")throw new Error("Піднесення до степеня тут не підтримується. Замість 2^3 напишіть 2 * 2 * 2.");
+    throw new Error("Незрозумілий символ «"+sym+"» у виразі «"+s+"».");
+  }
+  return t;
+}
+const isNum=v=>typeof v==="number";
+function fmt(v){if(typeof v==="boolean")return v?"істинне":"хибне";if(isNum(v)){if(!isFinite(v)||Math.abs(v)>=1e15)throw new Error("Число вийшло завеликим (понад 1 000 000 000 000 000). Перевірте обчислення.");const r=Math.round(v*1e6)/1e6;return String(Object.is(r,-0)?0:r).replace(".",",")}return String(v)}
+function truth(v){if(typeof v==="boolean")return v;if(isNum(v))return v!==0;return v!==""}
+function needNum(v,op){if(!isNum(v))throw new Error("Дію «"+op+"» не можна виконати з текстом. Перевірте, чи введено число.")}
+const MULT_TIP="Для множення використовуйте знак * (або · чи ×), а не літеру «х».";
+function evalExpr(src,env){
+  const toks=tokenize(src);
+  if(!toks.length)throw new Error("Блок не заповнено: впишіть вираз.");
+  let p=0;
+  const bad=()=>new Error("Не вдалося розібрати вираз «"+src+"». "+(/\d\s*[хxХX]\s*[\d(]|[\p{L}\d)]\s+[хxХX]\s+[\p{L}\d(]/u.test(src)?MULT_TIP:"Перевірте дужки та знаки дій."));
+  const is=v=>toks[p]&&toks[p].k==="op"&&toks[p].v===v;
+  const implicit=()=>{const t=toks[p],pr=toks[p-1];if(!t||!pr)return false;
+    if(t.k==="op"&&t.v==="(")return true;
+    if(t.k==="id"&&(pr.k==="num"||(pr.k==="op"&&pr.v===")"))){if(pr.k==="num"&&(/^[хxХX]\d/.test(t.v)||(/^[хxХX]$/.test(t.v)&&!(t.v in env)&&toks[p+1]&&(toks[p+1].k==="num"||(toks[p+1].k==="op"&&toks[p+1].v==="(")))))throw new Error("Не вдалося розібрати вираз «"+src+"». "+MULT_TIP);return true}
+    return false};
+  const OR=()=>{let a=AND();while(is("or")){p++;const b=AND();a=truth(a)||truth(b)}return a};
+  const AND=()=>{let a=NOT();while(is("and")){p++;const b=NOT();a=truth(a)&&truth(b)}return a};
+  const NOT=()=>{if(is("not")){p++;return !truth(NOT())}return CMP()};
+  const CMP=()=>{let a=ADD();const t=toks[p];if(t&&t.k==="op"&&[">","<",">=","<=","=","!="].includes(t.v)){p++;const b=ADD();return cmp(t.v,a,b)}return a};
+  const ADD=()=>{let a=MUL();while(is("+")||is("-")){const o=toks[p++].v;const b=MUL();
+    if(o==="+"&&(!isNum(a)||!isNum(b)))a=fmt(a)+fmt(b);else{needNum(a,o);needNum(b,o);a=o==="+"?a+b:a-b}}return a};
+  const MUL=()=>{let a=UN();while(true){let o;
+      if(is("*")||is("/")||is("%"))o=toks[p++].v;else if(implicit())o="*";else break;
+      const b=UN();needNum(a,o==="/"?":":o);needNum(b,o==="/"?":":o);
+      if((o==="/"||o==="%")&&b===0)throw new Error("Ділення на нуль неможливе.");a=o==="*"?a*b:o==="/"?a/b:((a%b)+b)%b}return a};
+  const UN=()=>{if(is("-")){p++;const v=UN();needNum(v,"−");return -v}if(is("+")){p++;return UN()}return PRIM()};
+  const PRIM=()=>{const t=toks[p++];if(!t)throw bad();
+    if(t.k==="num"||t.k==="str")return t.v;
+    if(t.k==="id"||t.raw){const name=t.k==="id"?t.v:latin(t.raw);if(!(name in env)){const er=new Error("Змінна «"+name+"» ще не має значення.");er.varName=name;throw er}return env[name]}
+    if(t.k==="op"&&t.v==="("){const v=OR();if(!is(")"))throw bad();p++;return v}
+    throw bad()};
+  const v=OR();if(p<toks.length)throw bad();return v;
+}
+function cmp(op,a,b){
+  if(isNum(a)&&isNum(b)){const e=1e-9;return op===">"?a>b+e:op==="<"?a<b-e:op===">="?a>=b-e:op==="<="?a<=b+e:op==="="?Math.abs(a-b)<e:Math.abs(a-b)>=e}
+  const x=fmt(a),y=fmt(b);
+  if(op==="=")return x===y;if(op==="!=")return x!==y;
+  const c=x.localeCompare(y,"uk");return op===">"?c>0:op==="<"?c<0:op===">="?c>=0:c<=0;
+}
+function varName(name){const raw=String(name??"").trim().replace(/['ʼ]/g,"’");if(!raw)throw new Error("Укажіть назву змінної.");
+  if(["або","не","та","and","or","not"].includes(raw.toLowerCase()))throw new Error("«"+raw+"» — службове слово, його не можна використовувати як назву змінної.");
+  const n=latin(raw);if(hasCyr(n))throw cyrError(raw,true);
+  if(!/^[\p{L}_][\p{L}\p{N}_’]*$/u.test(n))throw new Error("Назва змінної «"+raw+"» некоректна: вона має починатися з латинської літери й містити лише латинські літери, цифри або _.");
+  if(["або","не","та","and","or","not"].includes(n.toLowerCase()))throw new Error("«"+n+"» — службове слово, його не можна використовувати як назву змінної.");return n}
+function parseInput(s){const t=String(s).trim();if(/^[-−–+]?\d+([.,]\d+)?$/.test(t))return parseFloat(t.replace(/^[−–]/,"-").replace(",","."));return t}
+function splitVars(v){const all=String(v??"").trim().split(/\s*[,;]\s*|\s+(?:і|й|та|and)\s+|\s+/).filter(Boolean);
+  const keep=all.filter(w=>!(hasCyr(latin(w))&&[...w].length>=3));return keep.length?keep:all}
+const isQuestion=c=>/\?\s*$/.test(String(c??""));
+const isAssign=t=>ASSIGN_RE.test(String(t??""));
+
+/* блок «Команда»: присвоєння або словесна команда */
+function parseCmd(t){
+  const src=String(t??"").trim();
+  if(!src)throw new Error("Блок «Команда» не заповнено: впишіть дію, наприклад P "+SYM()+" 2(a + b), або команду словами.");
+  const m=ASSIGN_RE.exec(src);
+  if(m){if(!m[3].trim())throw new Error("Після знака присвоєння в команді «"+src+"» запишіть вираз, наприклад "+m[1]+" "+SYM()+" 0.");return{kind:"assign",v:m[1],e:m[3]}}
+  if(/[=←]/.test(src))throw new Error("Не вдалося розібрати команду «"+src+"». Присвоєння записують так: s "+SYM()+" s + 1 (зліва — назва змінної).");
+  let toks=null;try{toks=tokenize(src)}catch(e){}
+  if(toks){const ids=toks.filter(x=>x.k==="id"),def=definedVars(prog());
+    const looksExpr=toks.some(x=>x.k==="num"||(x.k==="op"&&x.v!=="("&&x.v!==")"))&&ids.every(x=>def.has(x.v));
+    if(looksExpr||(!hasCyr(src)&&toks.length&&toks.some(x=>x.k==="num"||(x.k==="op"&&x.v!=="("&&x.v!==")"))))throw new Error("Команда «"+src+"» обчислює значення, але нікуди його не записує. Напишіть, наприклад: "+(ids[0]?ids[0].v:"s")+" "+SYM()+" "+src+".")}
+  return{kind:"word",text:src};
+}
+
+/* ---------- Виконання ---------- */
+function* cond(src,env){if(isQuestion(src)){const a=yield {q:String(src).trim()};return !!a}
+  try{return truth(evalExpr(src,env))}catch(e){
+    const st=String(src).trim();
+    if(/^[\p{L}’'ʼ\s-]+$/u.test(st)&&hasCyr(st)&&st.split(/\s+/).length>=2){const er=new Error("Схоже, умова «"+String(src).trim()+"» — це запитання. Допишіть у кінці знак питання: «"+String(src).trim()+"?». Тоді під час виконання на нього можна буде відповісти «Так» або «Ні».");throw er}
+    throw e}}
+function* exec(list,env,out){
+  for(const n of list){
+    yield n.id;
+    if(n.type==="input"){const names=splitVars(n.v);if(!names.length)throw new Error("Укажіть назву змінної в блоці «Введення даних».");
+      {const raw=String(n.v).trim(),quoted=/^["«“„']/.test(raw);const txt=raw.replace(/^["«“„']+|["»”“']+$/g,"").trim();
+       if(quoted||(names.length>=2&&names.every(w=>hasCyr(latin(w)))))throw new Error("Блок «Введення даних» просить учня ввести значення змінної, а «"+txt+"» — це повідомлення. Щоб показати повідомлення, видаліть цей блок (кнопка ✕) і додайте замість нього блок «Виведення даних» із текстом у лапках: «"+txt+"».")}
+      for(const raw of names){const name=varName(raw);const val=yield {ask:name};env[name]=val}}
+    else if(n.type==="cmd"){const c=parseCmd(n.t);if(c.kind==="assign"){const v=evalExpr(c.e,env);if(isNum(v))fmt(v);env[varName(c.v)]=v}else out(c.text,"act")}
+    else if(n.type==="output"){out(fmt(evalExpr(n.e,env)))}
+    else if(n.type==="if"){const c=yield* cond(n.c,env);yield* exec(c?n.yes:n.no,env,out)}
+    else if(n.type==="repeat"){const k=evalExpr(n.n,env);
+      if(!isNum(k)||k<0||Math.round(k)!==k)throw new Error("Кількість повторень має бути цілим невід’ємним числом.");
+      if(k>10000)throw new Error("Забагато повторень: можна не більше ніж 10 000.");
+      for(let i=0;i<k;i++){yield* exec(n.body,env,out);if(i<k-1)yield n.id}}
+    else if(n.type==="until"){while(true){if(yield* cond(n.c,env))break;yield* exec(n.body,env,out);yield n.id}}
+    else if(n.type==="while"){while(true){if(!(yield* cond(n.c,env)))break;yield* exec(n.body,env,out);yield n.id}}
+    else if(n.type==="forever"){while(true){yield* exec(n.body,env,out);yield n.id}}
+  }
+}
+const MAXSTEPS=100000;
+const LIMIT="Алгоритм виконав понад 100 000 кроків і не завершився. Можливо, цикл ніколи не закінчується: перевірте, чи змінюється змінна в умові циклу.";
+const FOREVER_STOP="Безперервне повторення саме не завершується. Виконання зупинено після 100 000 кроків.";
+
+let R=null;
+function delay(){return Math.round(1100/Math.pow(1.55,+$("#speed").value-1))}
+function clearMarks(){document.querySelectorAll(".node.active,.node.err,.term.active").forEach(e=>e.classList.remove("active","err"))}
+function mark(id,cls){clearMarks();const el=document.querySelector('.node[data-id="'+id+'"]');if(el){el.classList.add(cls);const c=$("#canvas"),r=el.getBoundingClientRect(),cr=c.getBoundingClientRect();if((r.top<cr.top||r.bottom>cr.bottom)&&!(R&&R.auto&&+$("#speed").value>=10))el.scrollIntoView({block:"nearest",inline:"nearest",behavior:"smooth"})}}
+function printLine(text,cls){const c=$("#console");if(c.dataset.fresh!=="0"){c.innerHTML="";c.dataset.fresh="0"}const d=document.createElement("div");if(cls)d.className=cls;d.textContent=text;c.appendChild(d);while(c.childElementCount>1000)c.firstElementChild.remove();c.scrollTop=c.scrollHeight}
+const safeFmt=v=>{try{return typeof v==="string"?"«"+v+"»":fmt(v)}catch(e){return"завелике число"}};
+function showVars(env){const keys=env?Object.keys(env):[];$("#vars").innerHTML=keys.length?'<table class="vars"><tbody>'+keys.map(k=>"<tr><td>"+esc(k)+"</td><td>"+esc(safeFmt(env[k]))+"</td></tr>").join("")+"</tbody></table>":'<span class="empty">Змінних поки немає.</span>'}
+function setRunning(on){$("#stopBtn").disabled=!on;const cb=$("#clearBtn");if(cb)cb.disabled=on}
+
+function start(){
+  stop(true);
+  const c=$("#console");c.innerHTML="";c.dataset.fresh="0";
+  const env=Object.create(null);
+  R={env,gen:exec(prog(),env,(s,k)=>printLine(k==="act"?"▸ "+s:s,k==="act"?"act":"")),steps:0,auto:false,timer:null,waiting:false};
+  showVars(env);setRunning(true);
+  document.querySelector(".term.start")?.classList.add("active");
+}
+function step(send,quiet){
+  if(!R)return false;
+  let r;
+  try{r=R.gen.next(send)}catch(e){printLine("Помилка: "+e.message,"e");if(e.varName)printLine("Підказка: "+varTip(e.varName),"t");const id=R.cur;stop(true);if(id)mark(id,"err");return false}
+  if(!quiet||r.done||(r.value&&typeof r.value==="object"))showVars(R.env);
+  if(r.done){printLine("Алгоритм завершено.","s");stop(true);document.querySelector(".term.end")?.classList.add("active");return false}
+  if(r.value&&typeof r.value==="object"){R.waiting=true;if(R.cur)mark(R.cur,"active");if("q" in r.value)askQ(r.value.q);else askFor(r.value.ask);return false}
+  R.cur=r.value;if(!quiet)mark(r.value,"active");
+  if(++R.steps>MAXSTEPS){const id=R.cur;if(usedTypes(prog()).has("forever")){printLine(FOREVER_STOP,"s");stop(true);mark(id,"active")}else{printLine("Помилка: "+LIMIT,"e");stop(true);mark(id,"err")}return false}
+  return true;
+}
+function loop(){if(!R||!R.auto)return;if(+$("#speed").value>=10){const t0=performance.now();while(performance.now()-t0<25){if(!step(undefined,true))return}if(R){mark(R.cur,"active");showVars(R.env)}R.timer=setTimeout(loop,0);return}if(step())R.timer=setTimeout(loop,delay())}
+function stop(silent){if(R){clearTimeout(R.timer)}R=null;$("#ask").hidden=true;setRunning(false);if(!silent)clearMarks()}
+function showAsk(){const a=$("#ask");a.hidden=false;const r=a.getBoundingClientRect();if(r.top<0||r.bottom>innerHeight)a.scrollIntoView({block:"center",behavior:"smooth"})}
+function askFor(name){$("#askForm").hidden=false;$("#askYN").hidden=true;$("#askLabel").textContent="Алгоритм просить ввести значення змінної "+name;showAsk();const inp=$("#askInput");inp.value="";inp.focus({preventScroll:true})}
+function askQ(q){$("#askForm").hidden=true;$("#askYN").hidden=false;$("#askLabel").textContent=q;showAsk();$("#askYN [data-yn='1']").focus({preventScroll:true})}
+function resume(v,echo){R.waiting=false;$("#ask").hidden=true;printLine("> "+echo,"s");if(step(v)&&R&&R.auto)R.timer=setTimeout(loop,delay())}
+function submitAsk(e){if(e)e.preventDefault();if(!R||!R.waiting)return;const raw=$("#askInput").value;if(raw.trim()===""){$("#askInput").focus();return}
+  const v=parseInput(raw);let echo;try{echo=fmt(v)}catch(err){$("#askLabel").textContent=err.message+" Введіть менше число.";$("#askInput").select();return}resume(v,echo)}
+$("#askOk").addEventListener("click",submitAsk);
+$("#askInput").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.isComposing)submitAsk(e)});
+$("#askYN").addEventListener("click",e=>{const b=e.target.closest("[data-yn]");if(!b||!R||!R.waiting)return;const yes=b.dataset.yn==="1";resume(yes,yes?"Так":"Ні")});
+$("#runBtn").addEventListener("click",()=>{start();R.auto=true;R.timer=setTimeout(loop,Math.min(400,delay()))});
+$("#stepBtn").addEventListener("click",()=>{if(!R){start();return}else if(R.waiting){($("#askYN").hidden?$("#askInput"):$("#askYN [data-yn='1']")).focus();return}if(R){R.auto=false;clearTimeout(R.timer);step()}});
+$("#stopBtn").addEventListener("click",()=>{if(R)printLine("Виконання зупинено.","s");stop()});
+
+/* ---------- Перевірка ---------- */
+function norm(s){return String(s).trim().toLowerCase().replace(/[«»"“”„'’ʼ!.,;:]/g,"").replace(/\s+/g," ")}
+function same(a,b){const x=parseInput(a),y=parseInput(b);if(isNum(x)&&isNum(y))return Math.abs(x-y)<1e-6;return norm(a)===norm(b)}
+function inputVars(list,set=new Set()){for(const n of list){if(n.type==="input")splitVars(n.v).forEach(v=>set.add(latin(v.replace(/['ʼ]/g,"’"))));for(const k of ["yes","no","body"])if(n[k])inputVars(n[k],set)}return set}
+function definedVars(list,set=new Set()){for(const n of list){
+    if(n.type==="input")splitVars(n.v).forEach(v=>set.add(latin(v.replace(/['ʼ]/g,"’"))));
+    if(n.type==="cmd"){const m=ASSIGN_RE.exec(String(n.t??""));if(m)set.add(latin(m[1].replace(/['ʼ]/g,"’")))}
+    for(const k of ["yes","no","body"])if(n[k])definedVars(n[k],set)}return set}
+function varTip(name){
+  const def=definedVars(prog());const twinCase=[...def].find(v=>v!==name&&v.toLowerCase()===name.toLowerCase());
+  if(twinCase)return"Великі й малі літери в назвах змінних розрізняються: «"+twinCase+"» і «"+name+"» — це різні змінні. Пишіть назву однаково в усіх блоках.";
+  if(def.has(name)&&!inputVars(prog()).has(name))return"Змінна «"+name+"» використовується раніше, ніж отримує значення. Щоб задати її значення, додайте перед цим блок «Введення даних» (Ввести "+name+") або команду, наприклад "+name+" "+SYM()+" 0.";
+  if(/^(так|ні|істинне|хибне)$/i.test(name))return"Якщо «"+name+"» — це текст, візьміть його в лапки: «"+name+"». А щоб застосунок сам обчислив, істинне висловлювання чи хибне, запишіть саме висловлювання, наприклад 1 ≤ 2.";
+  const twin=[...definedVars(prog())].find(v=>v!==name&&latin(v)===latin(name));
+  if(twin)return"Схоже, у назвах змінних змішано українські й англійські літери: «"+twin+"» і «"+name+"» виглядають однаково, але для комп’ютера це різні змінні. Перепишіть назву в усіх блоках однією мовою.";
+  return definedVars(prog()).has(name)
+  ?"Змінна «"+name+"» є в схемі, але на момент використання ще не отримала значення. Перевірте порядок блоків: введення або присвоєння має стояти раніше, ніж блок, де змінна використовується."
+  :"Змінна «"+name+"» ніде в схемі не отримує значення. Схоже, бракує блока «Введення даних» для "+name+" або команди, наприклад "+name+" "+SYM()+" 0."}
+/* ---------- Відмальовування ---------- */
+function plural(n){const k=Number(String(n).replace(",","."));if(!Number.isInteger(k))return"разів";const a=Math.abs(k)%100,b=a%10;if(a>10&&a<15)return"разів";if(b===1)return"раз";if(b>=2&&b<=4)return"рази";return"разів"}
+function fld(key,val,ph){return '<input class="f" data-f="'+key+'" value="'+esc(val)+'" placeholder="'+ph+'" aria-label="'+ph+'" spellcheck="false" autocomplete="off">'}
+function tools(){return '<span class="tools"><button type="button" data-act="up" title="Перемістити вгору" aria-label="Перемістити вгору">↑</button><button type="button" data-act="down" title="Перемістити вниз" aria-label="Перемістити вниз">↓</button><button type="button" class="del" data-act="del" title="Видалити блок" aria-label="Видалити блок">✕</button></span>'}
+function gap(pid,key,i,dead){return '<div class="gap'+(dead?" dead":"")+'"'+(dead?' title="Сюди виконання ніколи не дійде: безперервне повторення не завершується."':"")+'><button type="button" class="slot" data-pid="'+pid+'" data-key="'+key+'" data-i="'+i+'" aria-label="Додати блок" aria-haspopup="menu" aria-expanded="false">+</button></div>'}
+function seq(list,pid,key){let h='<div class="seq">'+gap(pid,key,0);let dead=false;list.forEach((n,i)=>{h+=node(n);if(n.type==="forever")dead=true;h+=gap(pid,key,i+1,dead)});return h+"</div>"}
+function loopWrap(n,top,bottom,noexit){return '<div class="loop-wrap">'+(top?'<span class="lab">'+top+"</span>":"")+seq(n.body,n.id,"body")+'<div class="tail'+(noexit?" noexit":"")+'">'+(bottom?'<span class="lab">'+bottom+"</span>":"")+"</div></div>"}
+function node(n){
+  const o='<div class="node" data-id="'+n.id+'">';
+  switch(n.type){
+    case"input":return o+'<div class="head"><div class="shape para">Ввести '+fld("v",n.v,"змінні")+"</div>"+tools()+"</div></div>";
+    case"output":return o+'<div class="head"><div class="shape para">Вивести '+fld("e",n.e,"вираз")+"</div>"+tools()+"</div></div>";
+    case"cmd":return o+'<div class="head"><div class="shape rect">'+fld("t",n.t,"команда")+"</div>"+tools()+"</div></div>";
+    case"if":return o+'<div class="head"><div class="shape dia">'+fld("c",n.c,"умова")+"</div>"+tools()+'</div><span class="stub"></span><div class="branch"><div class="col"><span class="lab">Так</span>'+seq(n.yes,n.id,"yes")+'</div><div class="col"><span class="lab">Ні</span>'+seq(n.no,n.id,"no")+"</div></div></div>";
+    case"repeat":return o+'<div class="head"><div class="shape hex">Повторити '+fld("n",n.n,"5")+' <span class="pl">'+plural(n.n)+"</span></div>"+tools()+"</div>"+loopWrap(n,"Так","Ні")+"</div>";
+    case"until":return o+'<div class="head"><div class="shape dia wh">Повторити до '+fld("c",n.c,"умова")+"</div>"+tools()+"</div>"+loopWrap(n,"Ні","Так")+"</div>";
+    case"while":return o+'<div class="head"><div class="shape dia wh">Поки '+fld("c",n.c,"умова")+"</div>"+tools()+"</div>"+loopWrap(n,"Так","Ні")+"</div>";
+    case"forever":return o+'<div class="head"><div class="shape hex" tabindex="0">Завжди</div>'+tools()+"</div>"+loopWrap(n,"","",true)+"</div>";
+  }
+  return "";
+}
+function sizeField(inp){inp.style.width=Math.max(inp.value.length,inp.placeholder.length,2)+2+"ch"}
+function render(focusId){
+  $("#chart").innerHTML='<div class="node"><div class="head"><div class="shape term start">Початок</div></div></div>'+seq(prog(),"root","main")+'<div class="node"><div class="head"><div class="shape term end">Кінець</div></div></div>';
+  document.querySelectorAll("#chart input.f").forEach(sizeField);
+  if(focusId){const f=document.querySelector('.node[data-id="'+focusId+'"] input.f');if(f){f.focus({preventScroll:true});f.select();f.scrollIntoView({block:"nearest",inline:"nearest"})}}
+}
+function openLevel(id){stop();S.level=id;save();render();
+  const c=$("#console");c.innerHTML='<span class="s">Тут з’являтиметься те, що виводить алгоритм.</span>';c.dataset.fresh="1";
+  $("#vars").innerHTML='<span class="empty">Запустіть схему, щоб побачити значення змінних.</span>';setRunning(false)}
+
+/* ---------- Позначення присвоєння ---------- */
+function convertAll(){const sym=SYM();const walk=l=>l.forEach(n=>{if(n.type==="cmd"){const m=ASSIGN_RE.exec(String(n.t??""));if(m)n.t=m[1]+" "+sym+" "+m[3].trim()}for(const k of ["yes","no","body"])if(n[k])walk(n[k])});for(const k in S.progs)walk(S.progs[k])}
+
+/* ---------- Редагування ---------- */
+const menu=$("#menu");let target=null,openSlot=null,openedAt=0;
+function buildMenu(){menu.innerHTML=Object.entries(BLOCKS).map(([k,b])=>'<button type="button" role="menuitem" data-type="'+k+'"><span class="mini '+b.cls+'" style="--fill:'+b.fill+'"></span><span>'+b.name+"</span></button>").join("")}
+buildMenu();
+function closeMenu(){menu.hidden=true;if(openSlot)openSlot.setAttribute("aria-expanded","false");openSlot=null;target=null}
+$("#chart").addEventListener("click",e=>{
+  const slot=e.target.closest(".slot");
+  if(slot){e.stopPropagation();if(R){stop()}if(openSlot===slot){closeMenu();return}closeMenu();
+    target={pid:slot.dataset.pid,key:slot.dataset.key,i:+slot.dataset.i};openSlot=slot;openedAt=performance.now();slot.setAttribute("aria-expanded","true");
+    menu.hidden=false;const r=slot.getBoundingClientRect(),mw=menu.offsetWidth,mh=menu.offsetHeight;
+    let x=r.left+r.width/2-mw/2,y=r.bottom+6;x=Math.max(8,Math.min(x,innerWidth-mw-8));if(y+mh>innerHeight-8)y=Math.max(8,r.top-mh-6);
+    menu.style.left=x+"px";menu.style.top=y+"px";menu.querySelector("button").focus({preventScroll:true});return}
+  const act=e.target.closest("[data-act]");
+  if(act){if(R)stop();const id=act.closest(".node").dataset.id;const f=findIn(prog(),id);if(!f)return;
+    if(act.dataset.act==="del")f.list.splice(f.i,1);
+    else if(act.dataset.act==="up"&&f.i>0)[f.list[f.i-1],f.list[f.i]]=[f.list[f.i],f.list[f.i-1]];
+    else if(act.dataset.act==="down"&&f.i<f.list.length-1)[f.list[f.i+1],f.list[f.i]]=[f.list[f.i],f.list[f.i+1]];
+    save();render()}
+});
+menu.addEventListener("click",e=>{const b=e.target.closest("[data-type]");if(!b||!target)return;const t=b.dataset.type;
+  const n={id:nid(),type:t};
+  if(t==="input")n.v="";if(t==="cmd")n.t="";if(t==="output")n.e="";
+  if(t==="if"){n.c="";n.yes=[];n.no=[]}if(t==="repeat"){n.n="3";n.body=[]}if(t==="until"||t==="while"){n.c="";n.body=[]}if(t==="forever")n.body=[];
+  const l=listOf(target.pid,target.key);if(l){l.splice(target.i,0,n);save()}closeMenu();render(n.id)});
+document.addEventListener("click",e=>{if(!menu.hidden&&!menu.contains(e.target))closeMenu()});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!menu.hidden){const s=openSlot;closeMenu();s&&s.focus()}});
+menu.addEventListener("keydown",e=>{const bs=[...menu.querySelectorAll("button")],i=bs.indexOf(document.activeElement);
+  if(e.key==="ArrowDown"||e.key==="ArrowUp"){e.preventDefault();bs[(i+(e.key==="ArrowDown"?1:bs.length-1))%bs.length].focus()}
+  else if(e.key==="Home"||e.key==="End"){e.preventDefault();bs[e.key==="Home"?0:bs.length-1].focus()}
+  else if(e.key==="Tab"){e.preventDefault();bs[(i+(e.shiftKey?bs.length-1:1))%bs.length].focus()}});
+const scrollClose=()=>{if(!menu.hidden&&performance.now()-openedAt>600)closeMenu()};
+$("#canvas").addEventListener("scroll",scrollClose);window.addEventListener("scroll",scrollClose,{passive:true});
+$("#chart").addEventListener("input",e=>{const inp=e.target.closest("input.f");if(!inp)return;const nd=inp.closest(".node");const f=findIn(prog(),nd.dataset.id);if(!f)return;
+  f.node[inp.dataset.f]=inp.value;sizeField(inp);if(inp.dataset.f==="n"){const pl=nd.querySelector(":scope>.head .pl");if(pl)pl.textContent=plural(inp.value)}
+  nd.classList.remove("err");if(R)stop();save()});
+
+$("#clearBox").addEventListener("click",e=>{
+  const box=$("#clearBox");
+  if(e.target.id==="clearBtn"){box.innerHTML='<span class="confirm">Видалити всі блоки? <button type="button" class="btn" data-c="yes">Так</button><button type="button" class="btn ghost" data-c="no">Ні</button></span>';return}
+  const c=e.target.dataset.c;if(!c)return;
+  if(c==="yes"){stop();S.progs[S.level]=[];save();render()}
+  box.innerHTML='<button class="btn ghost" id="clearBtn" type="button">Очистити схему</button>';
+});
+
+if(hadOtherSign)convertAll();save();openLevel("free");
+})();
+</script>
+
+</body>
+</html>
