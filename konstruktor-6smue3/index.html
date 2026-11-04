@@ -129,20 +129,22 @@ input.f:focus{border-style:solid;border-color:var(--accent);outline:none;box-sha
 .arrow{font-family:var(--f-mono);font-weight:700}
 
 .tools{position:absolute;right:-12px;top:-14px;display:flex;gap:2px;opacity:0;visibility:hidden;transition:opacity .12s;z-index:5;padding:2px;border-radius:8px;background:var(--surface);box-shadow:0 1px 4px rgba(15,25,50,.18)}
-.node:hover>.head .tools,.head:focus-within .tools{opacity:1;visibility:visible}
+.head:hover>.tools,.head:focus-within>.tools{opacity:1;visibility:visible}
 .shape[tabindex]:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 .tools button{width:22px;height:22px;border-radius:6px;border:1px solid var(--grid);background:var(--surface);cursor:pointer;padding:0;font-size:12px;line-height:1;color:var(--muted)}
 .tools button:hover{color:var(--ink);border-color:var(--line)}
 .tools button.del:hover{color:var(--bad);border-color:var(--bad)}
 
-.branch{display:grid;grid-template-columns:auto auto;position:relative;width:max-content;max-width:none}
+.ifhead{z-index:2}
+.branch{display:grid;grid-template-columns:1fr 1fr;position:relative;width:max-content;max-width:none;margin-top:calc(-1 * var(--hh,35px))}
 .col::before,.col::after{content:"";position:absolute;height:2px;background:var(--line)}
 .col::before{top:0}.col::after{bottom:0}
 .col:first-child::before,.col:first-child::after{left:50%;right:0}
 .col:last-child::before,.col:last-child::after{left:0;right:50%}
-.col{display:flex;flex-direction:column;align-items:center;padding:0 16px;position:relative;min-width:130px}
+.col{display:flex;flex-direction:column;align-items:center;padding:0 16px;position:relative;min-width:max(130px,calc(var(--dw,170px) + 36px))}
 .col>.seq{flex:1;width:100%}
 .col>.seq>.gap:last-child{flex:1 0 32px}
+.col>.seq>.gap:first-child{height:calc(var(--hh,35px) + 28px)}
 .col>.seq>.gap:last-child::after{display:none}
 .lab{position:absolute;top:3px;left:calc(50% + 16px);font-size:12px;font-weight:700;color:var(--muted);z-index:2;pointer-events:none}
 .loop-wrap{position:relative;display:flex;flex-direction:column;align-items:center;width:100%;padding:0 40px}
@@ -150,6 +152,9 @@ input.f:focus{border-style:solid;border-color:var(--accent);outline:none;box-sha
 .loop-wrap::after{content:"";position:absolute;top:2px;left:calc(50% - 14px);border:6px solid transparent;border-left:9px solid var(--line);border-right:0}
 .tail{position:relative;height:18px;width:100%}
 .tail .lab{top:0}
+.lab-y,.lab-n{position:absolute;bottom:calc(50% + 3px);font-size:12px;font-weight:700;color:var(--muted);pointer-events:none;white-space:nowrap}
+.lab-y{right:calc(100% + 4px)}.lab-n{left:calc(100% + 4px)}
+.node.active>.ifhead::before{top:auto;bottom:calc(50% + 18px);transform:none}
 .tail.noexit::before{bottom:50%}
 .gap.dead::before{background:repeating-linear-gradient(var(--line) 0 4px,transparent 4px 8px);opacity:.5}
 .gap.dead::after{display:none}
@@ -473,7 +478,7 @@ function node(n){
     case"input":return o+'<div class="head"><div class="shape para">Ввести '+fld("v",n.v,"змінні")+"</div>"+tools()+"</div></div>";
     case"output":return o+'<div class="head"><div class="shape para">Вивести '+fld("e",n.e,"вираз")+"</div>"+tools()+"</div></div>";
     case"cmd":return o+'<div class="head"><div class="shape rect">'+fld("t",n.t,"команда")+"</div>"+tools()+"</div></div>";
-    case"if":return o+'<div class="head"><div class="shape dia">'+fld("c",n.c,"умова")+"</div>"+tools()+'</div><span class="stub"></span><div class="branch"><div class="col"><span class="lab">Так</span>'+seq(n.yes,n.id,"yes")+'</div><div class="col"><span class="lab">Ні</span>'+seq(n.no,n.id,"no")+"</div></div></div>";
+    case"if":return o+'<div class="head ifhead"><span class="lab-y">Так</span><div class="shape dia">'+fld("c",n.c,"умова")+"</div>"+tools()+'<span class="lab-n">Ні</span></div><div class="branch"><div class="col">'+seq(n.yes,n.id,"yes")+'</div><div class="col">'+seq(n.no,n.id,"no")+"</div></div></div>";
     case"repeat":return o+'<div class="head"><div class="shape hex">Повторити '+fld("n",n.n,"5")+' <span class="pl">'+plural(n.n)+"</span></div>"+tools()+"</div>"+loopWrap(n,"Так","Ні")+"</div>";
     case"until":return o+'<div class="head"><div class="shape dia wh">Повторити до '+fld("c",n.c,"умова")+"</div>"+tools()+"</div>"+loopWrap(n,"Ні","Так")+"</div>";
     case"while":return o+'<div class="head"><div class="shape dia wh">Поки '+fld("c",n.c,"умова")+"</div>"+tools()+"</div>"+loopWrap(n,"Так","Ні")+"</div>";
@@ -482,9 +487,10 @@ function node(n){
   return "";
 }
 function sizeField(inp){inp.style.width=Math.max(inp.value.length,inp.placeholder.length,2)+2+"ch"}
+function layoutIfs(){document.querySelectorAll("#chart .ifhead").forEach(h=>{const d=h.querySelector(".shape"),b=h.parentElement.querySelector(":scope>.branch");if(!d||!b)return;b.style.setProperty("--dw",d.offsetWidth+"px");b.style.setProperty("--hh",d.offsetHeight/2+"px")})}
 function render(focusId){
   $("#chart").innerHTML='<div class="node"><div class="head"><div class="shape term start">Початок</div></div></div>'+seq(prog(),"root","main")+'<div class="node"><div class="head"><div class="shape term end">Кінець</div></div></div>';
-  document.querySelectorAll("#chart input.f").forEach(sizeField);
+  document.querySelectorAll("#chart input.f").forEach(sizeField);layoutIfs();
   if(focusId){const f=document.querySelector('.node[data-id="'+focusId+'"] input.f');if(f){f.focus({preventScroll:true});f.select();f.scrollIntoView({block:"nearest",inline:"nearest"})}}
 }
 function openLevel(id){stop();S.level=id;save();render();
@@ -527,7 +533,7 @@ menu.addEventListener("keydown",e=>{const bs=[...menu.querySelectorAll("button")
 const scrollClose=()=>{if(!menu.hidden&&performance.now()-openedAt>600)closeMenu()};
 $("#canvas").addEventListener("scroll",scrollClose);window.addEventListener("scroll",scrollClose,{passive:true});
 $("#chart").addEventListener("input",e=>{const inp=e.target.closest("input.f");if(!inp)return;const nd=inp.closest(".node");const f=findIn(prog(),nd.dataset.id);if(!f)return;
-  f.node[inp.dataset.f]=inp.value;sizeField(inp);if(inp.dataset.f==="n"){const pl=nd.querySelector(":scope>.head .pl");if(pl)pl.textContent=plural(inp.value)}
+  f.node[inp.dataset.f]=inp.value;sizeField(inp);layoutIfs();if(inp.dataset.f==="n"){const pl=nd.querySelector(":scope>.head .pl");if(pl)pl.textContent=plural(inp.value)}
   nd.classList.remove("err");if(R)stop();save()});
 
 $("#clearBox").addEventListener("click",e=>{
@@ -539,6 +545,7 @@ $("#clearBox").addEventListener("click",e=>{
 });
 
 if(hadOtherSign)convertAll();save();openLevel("free");
+try{document.fonts&&document.fonts.ready.then(layoutIfs)}catch(e){}
 })();
 </script>
 
