@@ -1,5 +1,5 @@
 /* Офлайн-робота «Конструктора алгоритмів». Змініть VERSION, щоб примусово оновити кеш. */
-const VERSION = "konstruktor-v5";
+const VERSION = "konstruktor-v6";
 const CORE = ["./", "./index.html", "./manifest.webmanifest", "./icon-192.png", "./icon-512.png", "./maskable-512.png", "./apple-touch-icon.png", "./favicon-64.png"];
 const FONT_HOSTS = ["fonts.googleapis.com", "fonts.gstatic.com"];
 

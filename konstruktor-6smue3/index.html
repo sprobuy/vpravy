@@ -179,6 +179,8 @@ input.f:focus{border-style:solid;border-color:var(--accent);outline:none;box-sha
 .mini::before{content:"";position:absolute;inset:0;background:var(--line);clip-path:var(--cp);z-index:-1}
 .mini::after{content:"";position:absolute;inset:1.5px;background:var(--fill);clip-path:var(--cp);z-index:-1}
 .mini.para{--cp:polygon(6px 0,100% 0,calc(100% - 6px) 100%,0 100%);padding:0}
+.addstep{font:inherit;font-size:12.5px;font-weight:600;line-height:1;color:var(--muted);background:transparent;border:1.5px dashed currentColor;border-radius:7px;padding:5px 8px;margin-left:8px;cursor:pointer;vertical-align:middle}
+.addstep:hover,.addstep:focus-visible{color:var(--ink,#1f2a44);background:rgba(255,255,255,.6)}
 .mini.hex{--cp:polygon(6px 0,calc(100% - 6px) 0,100% 50%,calc(100% - 6px) 100%,6px 100%,0 50%);padding:0}
 .mini.dia{padding:0;min-height:0}
 .mini.rect{padding:0}
@@ -488,6 +490,10 @@ function varTip(name){
   :"Змінна «"+name+"» ніде в схемі не отримує значення. Схоже, бракує блока «Введення даних» для "+name+" або команди, наприклад "+name+" "+SYM()+" 0."}
 /* ---------- Відмальовування ---------- */
 function plural(n){const k=Number(String(n).replace(",","."));if(!Number.isInteger(k))return"разів";const a=Math.abs(k)%100,b=a%10;if(a>10&&a<15)return"разів";if(b===1)return"раз";if(b>=2&&b<=4)return"рази";return"разів"}
+const stepOpen=new Set();
+const stepDefault=v=>{const t=String(v??"").trim();return t===""||t==="1"};
+const STEP_BTN='<button type="button" class="addstep" data-act="step" title="Додати крок (якщо не вказати, крок дорівнює 1)">+ крок</button>';
+function stepHtml(n){return stepDefault(n.s)&&!stepOpen.has(n.id)?STEP_BTN:" крок "+fld("s",n.s,"1")}
 function fld(key,val,ph){return '<input class="f" data-f="'+key+'" value="'+esc(val)+'" placeholder="'+ph+'" aria-label="'+ph+'" spellcheck="false" autocomplete="off">'}
 function tools(){return '<span class="tools"><button type="button" data-act="up" title="Перемістити вгору" aria-label="Перемістити вгору">↑</button><button type="button" data-act="down" title="Перемістити вниз" aria-label="Перемістити вниз">↓</button><button type="button" class="del" data-act="del" title="Видалити блок" aria-label="Видалити блок">✕</button></span>'}
 function gap(pid,key,i,dead){return '<div class="gap'+(dead?" dead":"")+'"'+(dead?' title="Сюди виконання ніколи не дійде: безперервне повторення не завершується."':"")+'><button type="button" class="slot" data-pid="'+pid+'" data-key="'+key+'" data-i="'+i+'" aria-label="Додати блок" aria-haspopup="menu" aria-expanded="false">+</button></div>'}
@@ -502,7 +508,7 @@ function node(n){
     case"output":return o+'<div class="head"><div class="shape para">Вивести '+fld("e",n.e,"вираз")+"</div>"+tools()+"</div></div>";
     case"cmd":return o+'<div class="head"><div class="shape rect">'+fld("t",n.t,"команда")+"</div>"+tools()+"</div></div>";
     case"if":return o+'<div class="head ifhead"><span class="lab-y">Так</span><div class="shape dia">'+fld("c",n.c,"умова")+"</div>"+tools()+'<span class="lab-n">Ні</span></div><div class="branch"><div class="col">'+seq(n.yes,n.id,"yes")+'</div><div class="col">'+seq(n.no,n.id,"no")+"</div></div></div>";
-    case"for":return loopNode(n,'<div class="shape hex">Для '+fld("v",n.v,"i")+" від "+fld("a",n.a,"1")+" до "+fld("b",n.b,"10")+" крок "+fld("s",n.s,"1")+"</div>","Так","Ні");
+    case"for":return loopNode(n,'<div class="shape hex">Для '+fld("v",n.v,"i")+" від "+fld("a",n.a,"1")+" до "+fld("b",n.b,"10")+'<span class="stp">'+stepHtml(n)+"</span></div>","Так","Ні");
     case"while":return loopNode(n,'<div class="shape dia wh">Поки '+fld("c",n.c,"умова")+"</div>","Так","Ні");
     case"dowhile":return postNode(n);
   }
@@ -535,6 +541,9 @@ $("#chart").addEventListener("click",e=>{
     let x=r.left+r.width/2-mw/2,y=r.bottom+6;x=Math.max(8,Math.min(x,innerWidth-mw-8));if(y+mh>innerHeight-8)y=Math.max(8,r.top-mh-6);
     menu.style.left=x+"px";menu.style.top=y+"px";menu.querySelector("button").focus({preventScroll:true});return}
   const act=e.target.closest("[data-act]");
+  if(act&&act.dataset.act==="step"){const nd=act.closest(".node"),f=findIn(prog(),nd.dataset.id);if(!f)return;if(R)stop();
+    stepOpen.add(f.node.id);if(stepDefault(f.node.s))f.node.s="";const sp=act.closest(".stp");sp.innerHTML=stepHtml(f.node);
+    const inp=sp.querySelector("input.f");sizeField(inp);layoutIfs();inp.focus();return}
   if(act){if(R)stop();const id=act.closest(".node").dataset.id;const f=findIn(prog(),id);if(!f)return;
     if(act.dataset.act==="del")f.list.splice(f.i,1);
     else if(act.dataset.act==="up"&&f.i>0)[f.list[f.i-1],f.list[f.i]]=[f.list[f.i],f.list[f.i-1]];
@@ -558,6 +567,8 @@ $("#chart").addEventListener("input",e=>{const inp=e.target.closest("input.f");i
   f.node[inp.dataset.f]=inp.value;sizeField(inp);layoutIfs();if(inp.dataset.f==="n"){const pl=nd.querySelector(":scope>.head .pl");if(pl)pl.textContent=plural(inp.value)}
   nd.classList.remove("err");if(R)stop();save()});
 
+$("#chart").addEventListener("focusout",e=>{const inp=e.target.closest('input.f[data-f="s"]');if(!inp)return;const nd=inp.closest(".node"),f=findIn(prog(),nd.dataset.id);if(!f||f.node.type!=="for")return;
+  if(stepDefault(inp.value)){f.node.s="1";stepOpen.delete(f.node.id);save();const sp=inp.closest(".stp");if(sp){sp.innerHTML=stepHtml(f.node);layoutIfs()}}});
 $("#clearBox").addEventListener("click",e=>{
   const box=$("#clearBox");
   if(e.target.id==="clearBtn"){box.innerHTML='<span class="confirm">Видалити всі блоки? <button type="button" class="btn" data-c="yes">Так</button><button type="button" class="btn ghost" data-c="no">Ні</button></span>';return}
