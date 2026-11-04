@@ -553,7 +553,7 @@ try{document.fonts&&document.fonts.ready.then(layoutIfs)}catch(e){}
 (function(){
   var top=true;try{top=window.top===window.self}catch(e){top=false}
   var standalone=(window.matchMedia&&matchMedia("(display-mode: standalone)").matches)||navigator.standalone===true;
-  if("serviceWorker" in navigator&&window.isSecureContext){window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){})})}
+  if("serviceWorker" in navigator&&window.isSecureContext){window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).catch(function(){})})}
   if(!top||standalone)return;
   var box=document.getElementById("install"),btn=document.getElementById("installBtn"),hint=document.getElementById("iosHint"),ev=null;
   window.addEventListener("beforeinstallprompt",function(e){e.preventDefault();ev=e;box.hidden=false;btn.hidden=false});

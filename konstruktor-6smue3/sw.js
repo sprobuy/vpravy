@@ -1,5 +1,5 @@
 /* Офлайн-робота «Конструктора алгоритмів». Змініть VERSION, щоб примусово оновити кеш. */
-const VERSION = "konstruktor-v2";
+const VERSION = "konstruktor-v3";
 const CORE = ["./", "./index.html", "./manifest.webmanifest", "./icon-192.png", "./icon-512.png", "./maskable-512.png", "./apple-touch-icon.png", "./favicon-64.png"];
 const FONT_HOSTS = ["fonts.googleapis.com", "fonts.gstatic.com"];
 
@@ -16,7 +16,7 @@ self.addEventListener("fetch", e => {
   const url = new URL(req.url);
   // Сторінка: спершу мережа (щоб отримувати оновлення), без мережі — збережена копія
   if (req.mode === "navigate" || (url.origin === location.origin && /\/(index\.html)?$/.test(url.pathname))) {
-    e.respondWith(Promise.race([fetch(req), timeout(5000)]).then(res => {
+    e.respondWith(Promise.race([fetch(req, { cache: "no-cache" }), timeout(5000)]).then(res => {
       if (res && res.ok) { const copy = res.clone(); caches.open(VERSION).then(c => c.put("./index.html", copy)); }
       return res;
     }).catch(() => caches.match("./index.html").then(r => r || caches.match("./"))));
