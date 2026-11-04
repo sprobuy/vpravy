@@ -395,7 +395,23 @@ function parseCmd(t){
 }
 
 /* ---------- Виконання ---------- */
-function* cond(src,env){const neg=/^\s*не\s*\(\s*([^()]*\?)\s*\)\s*$/i.exec(String(src??""))||/^\s*не\s+([^()]*\?)\s*$/i.exec(String(src??""));
+/* зайве службове слово, яке вже написано на блоці */
+const stripWord=(s,re)=>String(s??"").replace(re,"").trim();
+const COND_RE=/^\s*(?:якщо|поки)\s+|\s*,?\s+то\s*$/giu;
+/* «Вивести a, b»: коми між значеннями (не в лапках, не в дужках, не в дробі 2,5) */
+function splitOut(src){const parts=[];let cur="",q=null,d=0;const s=String(src??"");const Q={'"':'"',"«":"»","“":"”","„":"“","'":"'"};
+  for(let i=0;i<s.length;i++){const ch=s[i];
+    if(q){cur+=ch;if(ch===q||(q==="“"&&ch==="”"))q=null;continue}
+    if(Q[ch]&&!(ch==="'"&&/\p{L}/u.test(s[i-1]||"")&&/\p{L}/u.test(s[i+1]||""))){q=Q[ch];cur+=ch;continue}
+    if(ch==="(")d++;else if(ch===")")d--;
+    if((ch===","||ch===";")&&d===0&&!(ch===","&&/\d/.test(s[i-1]||"")&&/\d/.test(s[i+1]||""))){parts.push(cur);cur="";continue}
+    cur+=ch}
+  parts.push(cur);return parts.map(x=>x.trim())}
+function outVal(src,env){const ps=splitOut(stripWord(src,/^\s*вивести\s+/iu));if(ps.length>1&&ps.some(x=>!x))throw new Error("У блоці «Виведення даних» між комами пропущено значення: «"+String(src).trim()+"».");
+  let r="";for(const x of ps){const v=fmt(evalExpr(x,env));r+=(r&&!/\s$/.test(r)&&!/^\s/.test(v)?" ":"")+v}return r}
+function* cond(src0,env){let src=stripWord(src0,COND_RE);if(src!==String(src0??"").trim()&&isQuestion(src))src=src.charAt(0).toUpperCase()+src.slice(1);
+  if(isQuestion(src)){const f=src.replace(/\?\s*$/,"").trim();if(f&&!hasCyr(latin(f))){let ok=true;try{tokenize(f)}catch(e){ok=false}if(ok)return truth(evalExpr(f,env))}}
+  const neg=/^\s*не\s*\(\s*([^()]*\?)\s*\)\s*$/i.exec(String(src??""))||/^\s*не\s+([^()]*\?)\s*$/i.exec(String(src??""));
   if(neg){const a=yield {q:neg[1].trim()};return !a}
   if(isQuestion(src)){const a=yield {q:String(src).trim()};return !!a}
   try{return truth(evalExpr(src,env))}catch(e){
@@ -410,7 +426,7 @@ function* exec(list,env,out){
        if(quoted||(names.length>=2&&names.every(w=>hasCyr(latin(w)))))throw new Error("Блок «Введення даних» просить учня ввести значення змінної, а «"+txt+"» — це повідомлення. Щоб показати повідомлення, видаліть цей блок (кнопка ✕) і додайте замість нього блок «Виведення даних» із текстом у лапках: «"+txt+"».")}
       for(const raw of names){const name=varName(raw);const val=yield {ask:name};env[name]=val}}
     else if(n.type==="cmd"){const c=parseCmd(n.t);if(c.kind==="assign"){const v=evalExpr(c.e,env);if(isNum(v))fmt(v);env[varName(c.v)]=v}else out(c.text,"act")}
-    else if(n.type==="output"){out(fmt(evalExpr(n.e,env)))}
+    else if(n.type==="output"){out(outVal(n.e,env))}
     else if(n.type==="if"){const c=yield* cond(n.c,env);yield* exec(c?n.yes:n.no,env,out)}
     else if(n.type==="for"){const name=varName(n.v);
       const num=(src,what)=>{if(!String(src??"").trim())throw new Error("Укажіть "+what+" у циклі з лічильником.");const v=evalExpr(src,env);if(!isNum(v))throw new Error("У циклі з лічильником "+what+" має бути числом.");return v};
@@ -448,7 +464,7 @@ function step(send,quiet){
   let r;
   try{r=R.gen.next(send)}catch(e){printLine("Помилка: "+e.message,"e");if(e.varName)printLine("Підказка: "+varTip(e.varName),"t");const id=R.cur;stop(true);if(id)mark(id,"err");return false}
   if(!quiet||r.done||(r.value&&typeof r.value==="object"))showVars(R.env);
-  if(r.done){printLine("Алгоритм завершено.","s");stop(true);document.querySelector(".term.end")?.classList.add("active");return false}
+  if(r.done){printLine("Алгоритм завершено.","s");stop(true);clearMarks();document.querySelector(".term.end")?.classList.add("active");return false}
   if(r.value&&typeof r.value==="object"){R.waiting=true;if(R.cur)mark(R.cur,"active");if("q" in r.value)askQ(r.value.q);else askFor(r.value.ask);return false}
   R.cur=r.value;if(!quiet)mark(r.value,"active");
   if(++R.steps>MAXSTEPS){const id=R.cur;printLine("Помилка: "+LIMIT,"e");stop(true);mark(id,"err");return false}
@@ -461,7 +477,7 @@ function askFor(name){$("#askForm").hidden=false;$("#askYN").hidden=true;$("#ask
 function askQ(q){$("#askForm").hidden=true;$("#askYN").hidden=false;$("#askLabel").textContent=q;showAsk();$("#askYN [data-yn='1']").focus({preventScroll:true})}
 function resume(v,echo){R.waiting=false;$("#ask").hidden=true;printLine("> "+echo,"s");if(step(v)&&R&&R.auto)R.timer=setTimeout(loop,delay())}
 function submitAsk(e){if(e)e.preventDefault();if(!R||!R.waiting)return;const raw=$("#askInput").value;if(raw.trim()===""){$("#askInput").focus();return}
-  const v=parseInput(raw);let echo;try{echo=fmt(v)}catch(err){$("#askLabel").textContent=err.message+" Введіть менше число.";$("#askInput").select();return}resume(v,echo)}
+  const v=parseInput(raw);let echo;try{echo=fmt(v)}catch(err){$("#askLabel").textContent="Число завелике. Введіть число, менше ніж 1 000 000 000 000 000.";$("#askInput").select();return}resume(v,echo)}
 $("#askOk").addEventListener("click",submitAsk);
 $("#askInput").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.isComposing)submitAsk(e)});
 $("#askYN").addEventListener("click",e=>{const b=e.target.closest("[data-yn]");if(!b||!R||!R.waiting)return;const yes=b.dataset.yn==="1";resume(yes,yes?"Так":"Ні")});
