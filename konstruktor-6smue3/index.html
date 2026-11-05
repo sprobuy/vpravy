@@ -16,7 +16,7 @@
 <meta name="apple-mobile-web-app-title" content="Конструктор">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
-<title>Вільний конструктор алгоритмів</title>
+<title>Конструктор алгоритмів</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Unbounded:wght@500;700&display=swap">
 <style>
@@ -168,8 +168,6 @@ input.f:focus{border-style:solid;border-color:var(--accent);outline:none;box-sha
 .lab-y{right:calc(100% + 4px)}.lab-n{left:calc(100% + 4px)}
 .node.active>.ifhead::before{top:auto;bottom:calc(50% + 18px);transform:none}
 .tail::before{display:none}
-.gap.dead::before{background:repeating-linear-gradient(var(--line) 0 4px,transparent 4px 8px);opacity:.5}
-.gap.dead::after{display:none}
 
 .menu{position:fixed;z-index:50;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:6px;box-shadow:0 12px 30px rgba(15,25,50,.22);display:grid;gap:2px;width:max-content;min-width:220px;max-width:calc(100vw - 16px)}
 .menu button{display:flex;align-items:center;gap:10px;text-align:left;border:0;background:transparent;border-radius:8px;padding:7px 8px;cursor:pointer}
@@ -248,20 +246,16 @@ const nid=()=>"n"+Math.random().toString(36).slice(2,9);
 const KEY="algo-free-v1";
 let S={level:"free",progs:{}};
 const SYM=()=>"=";
-const H=s=>String(s).split("{=}").join(SYM());
 
 const BLOCKS={
-  input:{name:"Введення даних",ex:()=>"Ввести a і b",cls:"para",fill:"var(--io)"},
-  cmd:{name:"Команда (дія)",ex:()=>"P "+SYM()+" 2(a + b) або «Підметіть підлогу.»",cls:"rect",fill:"var(--act)"},
-  output:{name:"Виведення даних",ex:()=>"Вивести P",cls:"para",fill:"var(--io)"},
-  if:{name:"Умова (розгалуження)",ex:()=>"a > b або «Телефон розрядився?»",cls:"dia",fill:"var(--cond)"},
-  while:{name:"Цикл з передумовою",ex:()=>"Поки <умова>",cls:"dia",fill:"var(--loop)"},
-  dowhile:{name:"Цикл з післяумовою",ex:()=>"… поки <умова>",cls:"dia",fill:"var(--loop)"},
-  for:{name:"Цикл з параметром",ex:()=>"Для i від 1 до n",cls:"hex",fill:"var(--loop)"}
+  input:{name:"Введення даних",cls:"para",fill:"var(--io)"},
+  cmd:{name:"Команда (дія)",cls:"rect",fill:"var(--act)"},
+  output:{name:"Виведення даних",cls:"para",fill:"var(--io)"},
+  if:{name:"Умова (розгалуження)",cls:"dia",fill:"var(--cond)"},
+  while:{name:"Цикл з передумовою",cls:"dia",fill:"var(--loop)"},
+  dowhile:{name:"Цикл з післяумовою",cls:"dia",fill:"var(--loop)"},
+  for:{name:"Цикл з параметром",cls:"hex",fill:"var(--loop)"}
 };
-const LEVELS=[{id:"free",free:true,starter:()=>[]}];
-const LIDX=Object.fromEntries(LEVELS.map((L,i)=>[L.id,i]));
-const CUR=()=>LEVELS[LIDX[S.level]];
 
 /* перенесення старих схем */
 const ASSIGN_RE=/^\s*([\p{L}_][\p{L}\p{N}_’'ʼ]*)\s*(:=|←|<-|=)(?!=)\s*([\s\S]*)$/u;
@@ -290,12 +284,11 @@ if(!S.progs||typeof S.progs!=="object")S.progs={};delete S.done;
 const hadOtherSign=S.notation==="arrow";delete S.notation;
 S.level="free";
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
-function prog(){const k=S.level;if(!Array.isArray(S.progs[k])){S.progs[k]=CUR().starter?CUR().starter():[];save()}return S.progs[k]}
+function prog(){const k=S.level;if(!Array.isArray(S.progs[k])){S.progs[k]=[];save()}return S.progs[k]}
 for(const k in S.progs){seen.clear();freeVar=pickFreeVar(S.progs[k]);S.progs[k]=migrateNodes(S.progs[k])}
 
 function findIn(list,id){for(let i=0;i<list.length;i++){const n=list[i];if(n.id===id)return{list,i,node:n};for(const key of ["yes","no","body"]){if(Array.isArray(n[key])){const r=findIn(n[key],id);if(r)return r}}}return null}
 function listOf(pid,key){if(pid==="root")return prog();const r=findIn(prog(),pid);return r?r.node[key]:null}
-function usedTypes(list,set=new Set()){for(const n of list){set.add(n.type);for(const k of ["yes","no","body"])if(n[k])usedTypes(n[k],set)}return set}
 
 /* ---------- Вирази ---------- */
 const LOOK={"а":"a","е":"e","і":"i","о":"o","р":"p","с":"c","х":"x","у":"y","к":"k","А":"A","В":"B","Е":"E","І":"I","К":"K","М":"M","Н":"H","О":"O","Р":"P","С":"C","Т":"T","Х":"X"};
@@ -378,7 +371,6 @@ function parseInput(s){const t=String(s).trim();if(/^[-−–+]?\d+([.,]\d+)?$/.
 function splitVars(v){const all=String(v??"").trim().split(/\s*[,;]\s*|\s+(?:і|й|та|and)\s+|\s+/).filter(Boolean);
   const keep=all.filter(w=>!(hasCyr(latin(w))&&[...w].length>=3));return keep.length?keep:all}
 const isQuestion=c=>/\?\s*$/.test(String(c??""));
-const isAssign=t=>ASSIGN_RE.test(String(t??""));
 
 /* блок «Команда»: присвоєння або словесна команда */
 function parseCmd(t){
@@ -485,9 +477,7 @@ $("#runBtn").addEventListener("click",()=>{start();R.auto=true;R.timer=setTimeou
 $("#stepBtn").addEventListener("click",()=>{if(!R){start();return}else if(R.waiting){($("#askYN").hidden?$("#askInput"):$("#askYN [data-yn='1']")).focus();return}if(R){R.auto=false;clearTimeout(R.timer);step()}});
 $("#stopBtn").addEventListener("click",()=>{if(R)printLine("Виконання зупинено.","s");stop()});
 
-/* ---------- Перевірка ---------- */
-function norm(s){return String(s).trim().toLowerCase().replace(/[«»"“”„'’ʼ!.,;:]/g,"").replace(/\s+/g," ")}
-function same(a,b){const x=parseInput(a),y=parseInput(b);if(isNum(x)&&isNum(y))return Math.abs(x-y)<1e-6;return norm(a)===norm(b)}
+/* ---------- Підказки до помилок ---------- */
 function inputVars(list,set=new Set()){for(const n of list){if(n.type==="input")splitVars(n.v).forEach(v=>set.add(latin(v.replace(/['ʼ]/g,"’"))));for(const k of ["yes","no","body"])if(n[k])inputVars(n[k],set)}return set}
 function definedVars(list,set=new Set()){for(const n of list){
     if(n.type==="input")splitVars(n.v).forEach(v=>set.add(latin(v.replace(/['ʼ]/g,"’"))));
@@ -505,15 +495,14 @@ function varTip(name){
   ?"Змінна «"+name+"» є в схемі, але на момент використання ще не отримала значення. Перевірте порядок блоків: введення або присвоєння має стояти раніше, ніж блок, де змінна використовується."
   :"Змінна «"+name+"» ніде в схемі не отримує значення. Схоже, бракує блока «Введення даних» для "+name+" або команди, наприклад "+name+" "+SYM()+" 0."}
 /* ---------- Відмальовування ---------- */
-function plural(n){const k=Number(String(n).replace(",","."));if(!Number.isInteger(k))return"разів";const a=Math.abs(k)%100,b=a%10;if(a>10&&a<15)return"разів";if(b===1)return"раз";if(b>=2&&b<=4)return"рази";return"разів"}
 const stepOpen=new Set();
 const stepDefault=v=>{const t=String(v??"").trim();return t===""||t==="1"};
 const STEP_BTN='<button type="button" class="addstep" data-act="step" title="Додати крок (якщо не вказати, крок дорівнює 1)">+ крок</button>';
 function stepHtml(n){return stepDefault(n.s)&&!stepOpen.has(n.id)?STEP_BTN:" крок "+fld("s",n.s,"1")}
 function fld(key,val,ph){return '<input class="f" data-f="'+key+'" value="'+esc(val)+'" placeholder="'+ph+'" aria-label="'+ph+'" spellcheck="false" autocomplete="off">'}
 function tools(){return '<span class="tools"><button type="button" data-act="up" title="Перемістити вгору" aria-label="Перемістити вгору">↑</button><button type="button" data-act="down" title="Перемістити вниз" aria-label="Перемістити вниз">↓</button><button type="button" class="del" data-act="del" title="Видалити блок" aria-label="Видалити блок">✕</button></span>'}
-function gap(pid,key,i,dead){return '<div class="gap'+(dead?" dead":"")+'"'+(dead?' title="Сюди виконання ніколи не дійде: безперервне повторення не завершується."':"")+'><button type="button" class="slot" data-pid="'+pid+'" data-key="'+key+'" data-i="'+i+'" aria-label="Додати блок" aria-haspopup="menu" aria-expanded="false">+</button></div>'}
-function seq(list,pid,key){let h='<div class="seq">'+gap(pid,key,0);let dead=false;list.forEach((n,i)=>{h+=node(n);if(n.type==="forever")dead=true;h+=gap(pid,key,i+1,dead)});return h+"</div>"}
+function gap(pid,key,i){return '<div class="gap"><button type="button" class="slot" data-pid="'+pid+'" data-key="'+key+'" data-i="'+i+'" aria-label="Додати блок" aria-haspopup="menu" aria-expanded="false">+</button></div>'}
+function seq(list,pid,key){let h='<div class="seq">'+gap(pid,key,0);list.forEach((n,i)=>{h+=node(n);h+=gap(pid,key,i+1)});return h+"</div>"}
 function loopWrap(n,top){return '<div class="loop-wrap">'+(top?'<span class="lab">'+top+"</span>":"")+seq(n.body,n.id,"body")+'<div class="tail"></div></div>'}
 function postNode(n){return '<div class="node lp post" data-id="'+n.id+'"><span class="lp-back"></span><div class="lp-in"></div><div class="loop-wrap">'+seq(n.body,n.id,"body")+'</div><div class="head lphead"><span class="lab-y">Так</span><div class="shape dia wh">Поки '+fld("c",n.c,"умова")+"</div>"+tools()+'<span class="lab-down">Ні</span></div></div>'}
 function loopNode(n,headHtml,inLab,outLab){return '<div class="node lp" data-id="'+n.id+'"><span class="lp-back"></span>'+(outLab!==null?'<span class="lp-out"></span>':"")+'<div class="lp-in"></div><div class="head lphead">'+headHtml+tools()+(outLab?'<span class="lab-n">'+outLab+"</span>":"")+"</div>"+loopWrap(n,inLab)+"</div>"}
@@ -580,7 +569,7 @@ menu.addEventListener("keydown",e=>{const bs=[...menu.querySelectorAll("button")
 const scrollClose=()=>{if(!menu.hidden&&performance.now()-openedAt>600)closeMenu()};
 $("#canvas").addEventListener("scroll",scrollClose);window.addEventListener("scroll",scrollClose,{passive:true});
 $("#chart").addEventListener("input",e=>{const inp=e.target.closest("input.f");if(!inp)return;const nd=inp.closest(".node");const f=findIn(prog(),nd.dataset.id);if(!f)return;
-  f.node[inp.dataset.f]=inp.value;sizeField(inp);layoutIfs();if(inp.dataset.f==="n"){const pl=nd.querySelector(":scope>.head .pl");if(pl)pl.textContent=plural(inp.value)}
+  f.node[inp.dataset.f]=inp.value;sizeField(inp);layoutIfs();
   nd.classList.remove("err");if(R)stop();save()});
 
 $("#chart").addEventListener("focusout",e=>{const inp=e.target.closest('input.f[data-f="s"]');if(!inp)return;const nd=inp.closest(".node"),f=findIn(prog(),nd.dataset.id);if(!f||f.node.type!=="for")return;
