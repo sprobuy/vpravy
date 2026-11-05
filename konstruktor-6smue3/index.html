@@ -257,7 +257,7 @@ const BLOCKS={
   if:{name:"Умова (розгалуження)",ex:()=>"a > b або «Телефон розрядився?»",cls:"dia",fill:"var(--cond)"},
   while:{name:"Цикл з передумовою",ex:()=>"Поки <умова>",cls:"dia",fill:"var(--loop)"},
   dowhile:{name:"Цикл з післяумовою",ex:()=>"… поки <умова>",cls:"dia",fill:"var(--loop)"},
-  for:{name:"Цикл з лічильником",ex:()=>"Для i від 1 до n",cls:"hex",fill:"var(--loop)"}
+  for:{name:"Цикл з параметром",ex:()=>"Для i від 1 до n",cls:"hex",fill:"var(--loop)"}
 };
 const LEVELS=[{id:"free",free:true,starter:()=>[]}];
 const LIDX=Object.fromEntries(LEVELS.map((L,i)=>[L.id,i]));
@@ -429,9 +429,9 @@ function* exec(list,env,out){
     else if(n.type==="output"){out(outVal(n.e,env))}
     else if(n.type==="if"){const c=yield* cond(n.c,env);yield* exec(c?n.yes:n.no,env,out)}
     else if(n.type==="for"){const name=varName(n.v);
-      const num=(src,what)=>{if(!String(src??"").trim())throw new Error("Укажіть "+what+" у циклі з лічильником.");const v=evalExpr(src,env);if(!isNum(v))throw new Error("У циклі з лічильником "+what+" має бути числом.");return v};
+      const num=(src,what)=>{if(!String(src??"").trim())throw new Error("Укажіть "+what+" у циклі з параметром.");const v=evalExpr(src,env);if(!isNum(v))throw new Error("У циклі з параметром "+what+" має бути числом.");return v};
       const a=num(n.a,"початкове значення"),b=num(n.b,"кінцеве значення"),st=String(n.s??"").trim()===""?1:num(n.s,"крок");
-      if(st===0)throw new Error("Крок циклу з лічильником не може дорівнювати нулю: цикл ніколи не завершився б.");
+      if(st===0)throw new Error("Крок циклу з параметром не може дорівнювати нулю: цикл ніколи не завершився б.");
       const cnt=Math.max(0,Math.floor((b-a)/st+1e-9)+1);
       if(cnt>10000)throw new Error("Забагато повторень: можна не більше ніж 10 000.");
       for(let k=0;k<cnt;k++){env[name]=Math.round((a+k*st)*1e9)/1e9;yield* exec(n.body,env,out);yield n.id}}
